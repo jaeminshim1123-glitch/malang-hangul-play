@@ -47,6 +47,7 @@ test("includes three worlds, twelve lessons, and recorded audio", async () => {
   assert.match(page, /speechSynthesis/);
   assert.match(page, /localStorage/);
   assert.match(page, /aria-live="polite"/);
+  assert.doesNotMatch(page, /ForestFriends|토토|콩이|🐰|🐸|🦔|world\.animal/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /@media \(max-width:\s*540px\)/);
   assert.match(layout, /lang="ko"/);

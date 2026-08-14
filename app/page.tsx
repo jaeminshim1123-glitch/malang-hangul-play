@@ -22,7 +22,6 @@ type World = {
   label: string;
   tagline: string;
   description: string;
-  animal: string;
   accent: string;
   completeTitle: string;
   completeCopy: string;
@@ -35,7 +34,6 @@ const worlds: World[] = [
     label: "첫 번째 동산",
     tagline: "글자꽃을 깨워요",
     description: "몽글이와 첫소리를 듣고 기본 글자를 만들어요.",
-    animal: "🐰",
     accent: "#2f9270",
     completeTitle: "소리숲이 다시 말랑말랑!",
     completeCopy: "가 · 나 · 모 · 사, 네 개의 글자꽃을 피웠어요.",
@@ -49,9 +47,8 @@ const worlds: World[] = [
   {
     name: "토끼 동산",
     label: "두 번째 동산",
-    tagline: "토토의 길을 만들어요",
+    tagline: "소풍길을 만들어요",
     description: "새 자음 친구를 만나 토끼의 소풍길을 이어 주세요.",
-    animal: "🐿️",
     accent: "#e17b61",
     completeTitle: "토끼 동산의 길이 열렸어요!",
     completeCopy: "다 · 라 · 바 · 자, 네 개의 발판을 놓았어요.",
@@ -67,7 +64,6 @@ const worlds: World[] = [
     label: "세 번째 동산",
     tagline: "여러 모음을 만나요",
     description: "고·누·미·소를 만들며 더 다양한 모음을 익혀요.",
-    animal: "🦔",
     accent: "#947049",
     completeTitle: "도토리 언덕 친구들이 돌아왔어요!",
     completeCopy: "고 · 누 · 미 · 소, 새로운 모음도 멋지게 찾았어요.",
@@ -102,14 +98,13 @@ function CloudBuddy({ mood = "happy" }: { mood?: "happy" | "cheer" }) {
   );
 }
 
-function ForestFriends() {
+function ForestDetails() {
   return (
-    <div className="forest-friends" aria-hidden="true">
-      <div className="forest-friend forest-friend--rabbit"><span>🐰</span><i>토토</i></div>
-      <div className="forest-friend forest-friend--squirrel"><span>🐿️</span><i>콩이</i></div>
+    <div className="forest-details" aria-hidden="true">
       <div className="mushroom-patch"><i>●</i><i>●</i><i>●</i></div>
-      <div className="tiny-pond"><span>〰</span><b>🐸</b></div>
+      <div className="tiny-pond"><span>〰</span></div>
       <span className="acorn acorn--one">♠</span><span className="acorn acorn--two">♠</span>
+      <span className="forest-spark forest-spark--one">✦</span><span className="forest-spark forest-spark--two">✦</span>
     </div>
   );
 }
@@ -280,17 +275,17 @@ export default function Home() {
           <div className="welcome-copy">
             <span className="eyebrow">새 친구들이 기다려요</span>
             <h1>숲속 동산에서<br /><em>글자 모험</em>을 떠나요!</h1>
-            <p>토끼 토토와 다람쥐 콩이가 길을 잃었대요.<br />소리를 찾고 글자를 만들어 세 동산을 밝혀 주세요.</p>
-            <div className="animal-intro"><span>🐰</span><span>🐿️</span><span>🦔</span><small>12개의 글자 친구</small></div>
+            <p>숲속 동산의 글자 길이 흐려졌대요.<br />소리를 찾고 글자를 만들어 세 동산을 밝혀 주세요.</p>
+            <div className="adventure-summary"><span>3개의 동산</span><i>✦</i><span>12개의 글자 친구</span></div>
             <button className="primary-button" onClick={() => { setPhase("map"); playVoice("intro", "몽글이와 함께 소리숲을 탐험해 볼까요?", true); }}>탐험 지도 펼치기 <span aria-hidden="true">→</span></button>
             <small className="play-note">동산마다 약 5분 · 시간 제한이 없어요</small>
           </div>
-          <div className="forest-scene forest-scene--alive" aria-label="토끼와 다람쥐가 사는 알록달록한 숲속 동산">
+          <div className="forest-scene forest-scene--alive" aria-label="글자꽃과 나무가 자라는 알록달록한 숲속 동산">
             <div className="scene-bubble">친구야,<br /><b>같이 놀자!</b></div><CloudBuddy mood="cheer" />
             <span className="tree tree--one"><i /><b>가</b></span><span className="tree tree--two"><i /><b>나</b></span><span className="tree tree--three"><i /><b>모</b></span>
             <span className="hill hill--back" /><span className="hill hill--front" />
             <span className="flower flower--one">✿</span><span className="flower flower--two">✿</span><span className="flower flower--three">✿</span>
-            <ForestFriends />
+            <ForestDetails />
           </div>
         </section>
       )}
@@ -303,7 +298,7 @@ export default function Home() {
             {worlds.map((item, index) => (
               <button key={item.name} className={`world-card world-card--${index + 1} ${completedWorlds.includes(index) ? "is-complete" : ""}`} onClick={() => startWorld(index)} style={{ "--world-accent": item.accent } as React.CSSProperties}>
                 <span className="world-card__number">{completedWorlds.includes(index) ? "✓" : index + 1}</span>
-                <div className="world-card__scene"><span className="world-card__animal">{item.animal}</span><i className="world-card__tree">♣</i><i className="world-card__flower">✿</i><b className="world-card__stone">{item.rounds[0].syllable}</b></div>
+                <div className="world-card__scene"><i className="world-card__tree">♣</i><i className="world-card__flower">✿</i><b className="world-card__stone">{item.rounds[0].syllable}</b><span className="world-card__trail" aria-hidden="true"><i /><i /><i /></span></div>
                 <small>{item.label}</small><h2>{item.name}</h2><strong>{item.tagline}</strong><p>{item.description}</p>
                 <span className="world-card__letters">{item.rounds.map((lesson) => <i key={lesson.syllable}>{lesson.syllable}</i>)}</span>
               </button>
@@ -325,7 +320,7 @@ export default function Home() {
 
       {phase === "celebrate" && <section className="celebrate-card" style={{ "--round-color": round.color } as React.CSSProperties}><div className="confetti" aria-hidden="true">✦ <i>●</i> ✿ <b>▲</b> ✦ <i>●</i> ✿</div><div className="word-flower"><span className="word-flower__petal word-flower__petal--one" /><span className="word-flower__petal word-flower__petal--two" /><span className="word-flower__petal word-flower__petal--three" /><span className="word-flower__petal word-flower__petal--four" /><b>{round.syllable}</b></div><span className="success-label">글자꽃이 피었어요!</span><h2><em>{round.consonant}</em> + <em>{round.vowel}</em> = <strong>{round.syllable}</strong></h2><div className="learned-word"><span>{round.emoji}</span><p><b>{round.word}</b><small>“{round.word}”의 첫 글자예요</small></p></div><button className="primary-button" onClick={nextRound}>{roundIndex === world.rounds.length - 1 ? `${world.name} 완성하기` : "다음 소리 찾기"} <span aria-hidden="true">→</span></button></section>}
 
-      {phase === "complete" && <section className="complete-card"><div className={`complete-garden complete-garden--${worldIndex + 1}`} aria-label={`${world.name}의 글자꽃 정원`}>{world.rounds.map((item, index) => <div className={`garden-flower garden-flower--${index + 1}`} key={item.syllable}><i>✿</i><b>{item.syllable}</b></div>)}<CloudBuddy mood="cheer" /><div className="garden-animal">{world.animal}</div></div><div className="complete-copy"><span className="eyebrow">{world.label} 탐험 완료</span><h1>{world.completeTitle.split(" ").slice(0, -1).join(" ")}<br /><em>{world.completeTitle.split(" ").at(-1)}</em></h1><p>{world.completeCopy}</p><div className="reward-ticket"><span>✿</span><p><small>이번 동산에서 피운 꽃</small><b>{world.rounds.length}송이</b></p></div><button className="primary-button" onClick={goNextWorld}>{worldIndex < worlds.length - 1 ? `다음: ${worlds[worldIndex + 1].name}` : "탐험 지도 보기"} <span aria-hidden="true">→</span></button><button className="text-button" onClick={() => startWorld(worldIndex)}>이 동산 한 번 더</button><button className="text-button text-button--map" onClick={openMap}>다른 동산 고르기</button></div></section>}
+      {phase === "complete" && <section className="complete-card"><div className={`complete-garden complete-garden--${worldIndex + 1}`} aria-label={`${world.name}의 글자꽃 정원`}>{world.rounds.map((item, index) => <div className={`garden-flower garden-flower--${index + 1}`} key={item.syllable}><i>✿</i><b>{item.syllable}</b></div>)}<CloudBuddy mood="cheer" /><div className="garden-sparkles" aria-hidden="true">✦ <i>✦</i> ✦</div></div><div className="complete-copy"><span className="eyebrow">{world.label} 탐험 완료</span><h1>{world.completeTitle.split(" ").slice(0, -1).join(" ")}<br /><em>{world.completeTitle.split(" ").at(-1)}</em></h1><p>{world.completeCopy}</p><div className="reward-ticket"><span>✿</span><p><small>이번 동산에서 피운 꽃</small><b>{world.rounds.length}송이</b></p></div><button className="primary-button" onClick={goNextWorld}>{worldIndex < worlds.length - 1 ? `다음: ${worlds[worldIndex + 1].name}` : "탐험 지도 보기"} <span aria-hidden="true">→</span></button><button className="text-button" onClick={() => startWorld(worldIndex)}>이 동산 한 번 더</button><button className="text-button text-button--map" onClick={openMap}>다른 동산 고르기</button></div></section>}
 
       <p className="sr-only" aria-live="polite">{message}</p>
       <audio ref={audioRef} className="sr-only" preload="auto" aria-hidden="true" />
