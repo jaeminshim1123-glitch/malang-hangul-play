@@ -260,7 +260,7 @@ export default function Home() {
 
       <header className="topbar">
         <button className="brand" onClick={() => setPhase("welcome")} aria-label="말랑한글 처음 화면으로 이동">
-          <img src="/brand/malang-hangul-logo.png" alt="말랑한글" />
+          <img src="/brand/malang-hangul-logo-transparent.png" alt="말랑한글" />
         </button>
         <div className="progress-wrap" aria-label={`전체 탐험 진행률 ${Math.round(progress)}퍼센트`}><div className="progress-label"><span>{phase === "welcome" || phase === "map" ? "동산 탐험 지도" : world.name}</span><b>{completedWorlds.length} / {worlds.length} 동산</b></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
         <button className="sound-toggle" onClick={() => {

@@ -1,13 +1,5 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: "NanumSquareRound";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff") format("woff");
-  font-style: normal;
-  font-weight: 300 900;
-  font-display: swap;
-}
-
 :root {
   --ink: #263b42;
   --muted: #6c7d7c;
@@ -29,7 +21,7 @@ body {
   background:
     radial-gradient(circle at 12% 8%, rgba(255,255,255,.92) 0 5%, transparent 16%),
     linear-gradient(180deg, #dff4f0 0 46%, #f3ead1 100%);
-  font-family: "NanumSquareRound", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
   font-weight: 600;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -50,7 +42,7 @@ button:focus-visible { outline: 4px solid rgba(74, 96, 202, .35); outline-offset
 
 .topbar { position: relative; z-index: 5; max-width: 1220px; margin: 0 auto 24px; display:grid; grid-template-columns: 250px minmax(220px, 420px) 220px; align-items:center; justify-content:space-between; gap:32px; }
 .brand { width:250px; border:0; background:transparent; padding:0; display:block; cursor:pointer; }
-.brand img { display:block; width:100%; height:auto; aspect-ratio:1923/817; object-fit:contain; border-radius:18px; box-shadow:0 6px 18px rgba(37,78,68,.1); }
+.brand img { display:block; width:100%; height:auto; aspect-ratio:1923/817; object-fit:contain; filter:drop-shadow(0 6px 10px rgba(37,78,68,.1)); }
 .progress-label { display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px; color:#4f6a67; }
 .progress-label b { color:var(--green); }
 .progress-track { height:12px; border:3px solid rgba(38,118,93,.16); border-radius:99px; background:rgba(255,255,255,.6); overflow:hidden; padding:1px; }
