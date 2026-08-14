@@ -381,10 +381,17 @@ export default function Home() {
                 </span>
                 <span className="journey-stone">
                   <span className="journey-stone__number">{completedWorlds.includes(index) ? "✓" : index + 1}</span>
-                  <small>{item.label}</small>
-                  <strong>{item.name}</strong>
-                  <em>{item.tagline}</em>
-                  <span className="journey-letters">{item.rounds.map((lesson) => <i key={lesson.syllable}>{lesson.syllable}</i>)}</span>
+                  <span className="journey-stone__copy">
+                    <small>{item.label}</small>
+                    <strong>{item.name}</strong>
+                    <em>{item.tagline}</em>
+                    <span className="journey-letters">{item.rounds.map((lesson) => <i key={lesson.syllable}>{lesson.syllable}</i>)}</span>
+                  </span>
+                  <span className="journey-nature" aria-hidden="true">
+                    <i className="journey-tree" />
+                    <i className="journey-letter-sign">{item.rounds[0].syllable}</i>
+                    <i className="journey-flower">✿</i>
+                  </span>
                 </span>
               </button>
             ))}

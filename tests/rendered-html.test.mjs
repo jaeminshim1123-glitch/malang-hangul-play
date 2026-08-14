@@ -53,6 +53,11 @@ test("includes six guided worlds, twelve lessons, and recorded audio", async () 
   assert.match(page, /forest-cast/);
   assert.match(page, /world-journey/);
   assert.match(page, /journey-route/);
+  assert.match(page, /journey-stone__copy/);
+  assert.match(page, /journey-nature/);
+  assert.match(page, /journey-tree/);
+  assert.match(css, /journey-stop--4\s*\{[^}]*grid-row:2/);
+  assert.match(css, /journey-bubble[^}]*font-size:14px/);
   assert.doesNotMatch(page, /world-card__scene|world-cards/);
   assert.match(page, /\/brand\/malang-hangul-logo-transparent\.png/);
   assert.doesNotMatch(css, /NanumSquareRound/);
