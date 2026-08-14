@@ -102,7 +102,6 @@ function ForestDetails() {
   return (
     <div className="forest-details" aria-hidden="true">
       <div className="mushroom-patch"><i>●</i><i>●</i><i>●</i></div>
-      <div className="tiny-pond"><span>〰</span></div>
       <span className="acorn acorn--one">♠</span><span className="acorn acorn--two">♠</span>
       <span className="forest-spark forest-spark--one">✦</span><span className="forest-spark forest-spark--two">✦</span>
     </div>

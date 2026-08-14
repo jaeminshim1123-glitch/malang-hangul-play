@@ -52,6 +52,8 @@ test("includes three worlds, twelve lessons, and recorded audio", async () => {
     assert.match(page, new RegExp(`/characters/sprites/${character}\\.png`));
   }
   assert.doesNotMatch(page, /ForestFriends|콩이|🐰|🐸|🦔|world\.animal/);
+  assert.doesNotMatch(page, /tiny-pond/);
+  assert.doesNotMatch(css, /\.tiny-pond/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /@media \(max-width:\s*540px\)/);
   assert.match(layout, /lang="ko"/);
