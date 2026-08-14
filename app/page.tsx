@@ -22,6 +22,9 @@ type World = {
   label: string;
   tagline: string;
   description: string;
+  guide: "toto" | "tori" | "lulu" | "bami" | "cloud" | "friends";
+  guideName: string;
+  greeting: string;
   accent: string;
   completeTitle: string;
   completeCopy: string;
@@ -32,44 +35,95 @@ const worlds: World[] = [
   {
     name: "소리숲",
     label: "첫 번째 동산",
-    tagline: "글자꽃을 깨워요",
-    description: "몽글이와 첫소리를 듣고 기본 글자를 만들어요.",
+    tagline: "첫소리를 찾아요",
+    description: "가·나의 첫소리를 듣고 기본 글자를 만들어요.",
+    guide: "toto",
+    guideName: "토토",
+    greeting: "안녕! 난 토토야! 나랑 소리숲에서 한글 공부 하지 않을래?",
     accent: "#2f9270",
     completeTitle: "소리숲이 다시 말랑말랑!",
-    completeCopy: "가 · 나 · 모 · 사, 네 개의 글자꽃을 피웠어요.",
+    completeCopy: "가 · 나, 두 개의 글자꽃을 피웠어요.",
     rounds: [
       { audioKey: "ga", syllable: "가", consonant: "ㄱ", vowel: "ㅏ", word: "가방", emoji: "🎒", color: "#ff8067", choices: [{ word: "나비", emoji: "🦋" }, { word: "가방", emoji: "🎒" }, { word: "모자", emoji: "👒" }], consonantChoices: ["ㄴ", "ㄱ", "ㅁ"], vowelChoices: ["ㅗ", "ㅏ", "ㅜ"] },
       { audioKey: "na", syllable: "나", consonant: "ㄴ", vowel: "ㅏ", word: "나비", emoji: "🦋", color: "#7d6be8", choices: [{ word: "모자", emoji: "👒" }, { word: "사과", emoji: "🍎" }, { word: "나비", emoji: "🦋" }], consonantChoices: ["ㅁ", "ㄴ", "ㅅ"], vowelChoices: ["ㅏ", "ㅓ", "ㅗ"] },
+    ],
+  },
+  {
+    name: "도토리 오솔길",
+    label: "두 번째 동산",
+    tagline: "글자꽃을 피워요",
+    description: "모·사의 소리 조각을 찾아 도토리 길을 이어요.",
+    guide: "tori",
+    guideName: "토리",
+    greeting: "반가워! 난 토리야! 도토리 오솔길에서 글자꽃을 같이 피워 보자!",
+    accent: "#9a7042",
+    completeTitle: "도토리 길이 활짝 열렸어요!",
+    completeCopy: "모 · 사, 도토리 길에 두 송이 꽃을 피웠어요.",
+    rounds: [
       { audioKey: "mo", syllable: "모", consonant: "ㅁ", vowel: "ㅗ", word: "모자", emoji: "👒", color: "#28ae86", choices: [{ word: "모자", emoji: "👒" }, { word: "가방", emoji: "🎒" }, { word: "나비", emoji: "🦋" }], consonantChoices: ["ㅅ", "ㄱ", "ㅁ"], vowelChoices: ["ㅜ", "ㅗ", "ㅏ"] },
       { audioKey: "sa", syllable: "사", consonant: "ㅅ", vowel: "ㅏ", word: "사과", emoji: "🍎", color: "#f3a727", choices: [{ word: "나비", emoji: "🦋" }, { word: "사과", emoji: "🍎" }, { word: "가방", emoji: "🎒" }], consonantChoices: ["ㄱ", "ㅅ", "ㄴ"], vowelChoices: ["ㅗ", "ㅜ", "ㅏ"] },
     ],
   },
   {
-    name: "토끼 동산",
-    label: "두 번째 동산",
-    tagline: "소풍길을 만들어요",
-    description: "새 자음 친구를 만나 토끼의 소풍길을 이어 주세요.",
+    name: "햇살 들판",
+    label: "세 번째 동산",
+    tagline: "새 자음을 만나요",
+    description: "다·라의 새 자음 친구와 햇살 소풍을 떠나요.",
+    guide: "lulu",
+    guideName: "루루",
+    greeting: "안녕! 난 루루야! 햇살 들판에서 새 자음 친구를 만나 볼래?",
     accent: "#e17b61",
-    completeTitle: "토끼 동산의 길이 열렸어요!",
-    completeCopy: "다 · 라 · 바 · 자, 네 개의 발판을 놓았어요.",
+    completeTitle: "햇살 들판이 반짝반짝!",
+    completeCopy: "다 · 라, 햇살 아래 두 개의 발판을 놓았어요.",
     rounds: [
       { audioKey: "da", syllable: "다", consonant: "ㄷ", vowel: "ㅏ", word: "다람쥐", emoji: "🐿️", color: "#e9785d", choices: [{ word: "다람쥐", emoji: "🐿️" }, { word: "바나나", emoji: "🍌" }, { word: "라디오", emoji: "📻" }], consonantChoices: ["ㄹ", "ㄷ", "ㅂ"], vowelChoices: ["ㅗ", "ㅏ", "ㅜ"] },
       { audioKey: "ra", syllable: "라", consonant: "ㄹ", vowel: "ㅏ", word: "라디오", emoji: "📻", color: "#816bd8", choices: [{ word: "자전거", emoji: "🚲" }, { word: "라디오", emoji: "📻" }, { word: "다람쥐", emoji: "🐿️" }], consonantChoices: ["ㄷ", "ㅂ", "ㄹ"], vowelChoices: ["ㅏ", "ㅓ", "ㅗ"] },
+    ],
+  },
+  {
+    name: "밤꽃 언덕",
+    label: "네 번째 동산",
+    tagline: "소리 조각을 맞춰요",
+    description: "바·자의 소리 조각으로 밤꽃 언덕을 밝혀요.",
+    guide: "bami",
+    guideName: "밤이",
+    greeting: "나는 밤이야! 밤꽃 언덕에서 소리 조각을 맞추며 같이 놀자!",
+    accent: "#7f6ac9",
+    completeTitle: "밤꽃 언덕이 환해졌어요!",
+    completeCopy: "바 · 자, 반짝이는 밤꽃 두 송이를 피웠어요.",
+    rounds: [
       { audioKey: "ba", syllable: "바", consonant: "ㅂ", vowel: "ㅏ", word: "바나나", emoji: "🍌", color: "#dfa928", choices: [{ word: "라디오", emoji: "📻" }, { word: "바나나", emoji: "🍌" }, { word: "자전거", emoji: "🚲" }], consonantChoices: ["ㅈ", "ㄹ", "ㅂ"], vowelChoices: ["ㅜ", "ㅏ", "ㅗ"] },
       { audioKey: "ja", syllable: "자", consonant: "ㅈ", vowel: "ㅏ", word: "자전거", emoji: "🚲", color: "#3d9fa3", choices: [{ word: "바나나", emoji: "🍌" }, { word: "다람쥐", emoji: "🐿️" }, { word: "자전거", emoji: "🚲" }], consonantChoices: ["ㅂ", "ㅈ", "ㄷ"], vowelChoices: ["ㅗ", "ㅜ", "ㅏ"] },
     ],
   },
   {
-    name: "도토리 언덕",
-    label: "세 번째 동산",
-    tagline: "여러 모음을 만나요",
-    description: "고·누·미·소를 만들며 더 다양한 모음을 익혀요.",
-    accent: "#947049",
-    completeTitle: "도토리 언덕 친구들이 돌아왔어요!",
-    completeCopy: "고 · 누 · 미 · 소, 새로운 모음도 멋지게 찾았어요.",
+    name: "구름 놀이터",
+    label: "다섯 번째 동산",
+    tagline: "새 모음을 만나요",
+    description: "고·누를 만들며 ㅗ와 ㅜ 모음을 익혀요.",
+    guide: "cloud",
+    guideName: "구름이",
+    greeting: "나는 구름이야! 구름 놀이터에서 새 모음을 찾아 함께 날아 보자!",
+    accent: "#479a9e",
+    completeTitle: "구름 놀이터가 몽글몽글!",
+    completeCopy: "고 · 누, 새로운 모음과 멋지게 친구가 되었어요.",
     rounds: [
       { audioKey: "go", syllable: "고", consonant: "ㄱ", vowel: "ㅗ", word: "고래", emoji: "🐳", color: "#4c9ec9", choices: [{ word: "누나", emoji: "👧" }, { word: "고래", emoji: "🐳" }, { word: "소방차", emoji: "🚒" }], consonantChoices: ["ㄴ", "ㅅ", "ㄱ"], vowelChoices: ["ㅏ", "ㅗ", "ㅜ"] },
       { audioKey: "nu", syllable: "누", consonant: "ㄴ", vowel: "ㅜ", word: "누나", emoji: "👧", color: "#8c6fd0", choices: [{ word: "고래", emoji: "🐳" }, { word: "미끄럼틀", emoji: "🛝" }, { word: "누나", emoji: "👧" }], consonantChoices: ["ㅁ", "ㄴ", "ㄱ"], vowelChoices: ["ㅗ", "ㅏ", "ㅜ"] },
+    ],
+  },
+  {
+    name: "무지개 정상",
+    label: "여섯 번째 동산",
+    tagline: "한글 모험을 완성해요",
+    description: "미·소를 만들고 열두 글자 모험을 완성해요.",
+    guide: "friends",
+    guideName: "숲속 친구들",
+    greeting: "우리 모두 기다리고 있어! 무지개 정상까지 함께 한글 모험을 완성하자!",
+    accent: "#dc7796",
+    completeTitle: "무지개 정상에 도착했어요!",
+    completeCopy: "미 · 소까지 완성! 열두 글자 친구를 모두 만났어요.",
+    rounds: [
       { audioKey: "mi", syllable: "미", consonant: "ㅁ", vowel: "ㅣ", word: "미끄럼틀", emoji: "🛝", color: "#dd7b9e", choices: [{ word: "미끄럼틀", emoji: "🛝" }, { word: "소방차", emoji: "🚒" }, { word: "고래", emoji: "🐳" }], consonantChoices: ["ㅅ", "ㄱ", "ㅁ"], vowelChoices: ["ㅣ", "ㅗ", "ㅏ"] },
       { audioKey: "so", syllable: "소", consonant: "ㅅ", vowel: "ㅗ", word: "소방차", emoji: "🚒", color: "#e25f4d", choices: [{ word: "누나", emoji: "👧" }, { word: "고래", emoji: "🐳" }, { word: "소방차", emoji: "🚒" }], consonantChoices: ["ㄴ", "ㅅ", "ㅁ"], vowelChoices: ["ㅜ", "ㅗ", "ㅣ"] },
     ],
@@ -98,6 +152,22 @@ function CloudBuddy({ mood = "happy" }: { mood?: "happy" | "cheer" }) {
   );
 }
 
+function WorldGuide({ guide }: { guide: World["guide"] }) {
+  if (guide === "cloud") {
+    return <span className="journey-guide journey-guide--cloud"><span className="journey-cloud-scale"><CloudBuddy mood="cheer" /></span></span>;
+  }
+
+  if (guide === "friends") {
+    return (
+      <span className="journey-guide journey-guide--friends" aria-hidden="true">
+        {(["toto", "tori", "lulu", "bami"] as const).map((friend) => <img key={friend} src={`/characters/sprites/${friend}.png`} alt="" />)}
+      </span>
+    );
+  }
+
+  return <span className="journey-guide"><img src={`/characters/sprites/${guide}.png`} alt="" /></span>;
+}
+
 function ForestDetails() {
   return (
     <div className="forest-details" aria-hidden="true">
@@ -124,8 +194,8 @@ export default function Home() {
 
   const world = worlds[worldIndex];
   const round = world.rounds[roundIndex];
-  const totalSteps = worlds.length * 4;
-  const completedSteps = worldIndex * 4 + roundIndex + (phase === "build" || phase === "celebrate" || phase === "complete" ? 0.5 : 0);
+  const totalSteps = worlds.reduce((total, item) => total + item.rounds.length, 0);
+  const completedSteps = worlds.slice(0, worldIndex).reduce((total, item) => total + item.rounds.length, 0) + roundIndex + (phase === "build" || phase === "celebrate" || phase === "complete" ? 0.5 : 0);
   const progress = phase === "welcome" || phase === "map" ? (completedWorlds.length / worlds.length) * 100 : Math.min(100, (completedSteps / totalSteps) * 100);
 
   useEffect(() => {
@@ -235,7 +305,7 @@ export default function Home() {
       window.localStorage.setItem("malang-completed-worlds", JSON.stringify(updated));
       setPhase("complete");
       setMessage(world.completeTitle);
-      playVoice(`complete-${worldIndex}`, world.completeTitle);
+      if (soundOn) fallbackSpeak(world.completeTitle);
       return;
     }
     const next = roundIndex + 1;
@@ -276,10 +346,10 @@ export default function Home() {
           <div className="welcome-copy">
             <span className="eyebrow">새 친구들이 기다려요</span>
             <h1>숲속 동산에서<br /><em>글자 모험</em>을 떠나요!</h1>
-            <p>숲속 동산의 글자 길이 흐려졌대요.<br />소리를 찾고 글자를 만들어 세 동산을 밝혀 주세요.</p>
-            <div className="adventure-summary"><span>3개의 동산</span><i>✦</i><span>12개의 글자 친구</span></div>
+            <p>숲속 동산의 글자 길이 흐려졌대요.<br />소리를 찾고 글자를 만들어 여섯 동산을 밝혀 주세요.</p>
+            <div className="adventure-summary"><span>6개의 동산</span><i>✦</i><span>12개의 글자 친구</span></div>
             <button className="primary-button" onClick={() => { setPhase("map"); playVoice("intro", "몽글이와 함께 소리숲을 탐험해 볼까요?", true); }}>탐험 지도 펼치기 <span aria-hidden="true">→</span></button>
-            <small className="play-note">동산마다 약 5분 · 시간 제한이 없어요</small>
+            <small className="play-note">동산마다 약 3분 · 시간 제한이 없어요</small>
           </div>
           <div className="forest-scene forest-scene--alive" aria-label="글자꽃과 나무가 자라는 알록달록한 숲속 동산">
             <CloudBuddy mood="cheer" />
@@ -300,15 +370,22 @@ export default function Home() {
 
       {phase === "map" && (
         <section className="world-map-card">
-          <div className="map-heading"><span className="eyebrow">어디부터 가볼까요?</span><h1>말랑한글 <em>탐험 지도</em></h1><p>완료한 동산도 언제든 다시 놀 수 있어요.</p></div>
-          <div className="world-path" aria-hidden="true"><span /><i /><span /><i /><span /></div>
-          <div className="world-cards">
+          <div className="map-heading"><span className="eyebrow">징검다리를 따라 출발!</span><h1>말랑한글 <em>탐험 지도</em></h1><p>여섯 동산의 친구들이 기다리고 있어요. 원하는 징검돌을 눌러 보세요.</p></div>
+          <div className="world-journey">
+            <div className="journey-route" aria-hidden="true" />
             {worlds.map((item, index) => (
-              <button key={item.name} className={`world-card world-card--${index + 1} ${completedWorlds.includes(index) ? "is-complete" : ""}`} onClick={() => startWorld(index)} style={{ "--world-accent": item.accent } as React.CSSProperties}>
-                <span className="world-card__number">{completedWorlds.includes(index) ? "✓" : index + 1}</span>
-                <div className="world-card__scene"><i className="world-card__tree">♣</i><i className="world-card__flower">✿</i><b className="world-card__stone">{item.rounds[0].syllable}</b><span className="world-card__trail" aria-hidden="true"><i /><i /><i /></span></div>
-                <small>{item.label}</small><h2>{item.name}</h2><strong>{item.tagline}</strong><p>{item.description}</p>
-                <span className="world-card__letters">{item.rounds.map((lesson) => <i key={lesson.syllable}>{lesson.syllable}</i>)}</span>
+              <button key={item.name} className={`journey-stop journey-stop--${index + 1} ${completedWorlds.includes(index) ? "is-complete" : ""}`} onClick={() => startWorld(index)} style={{ "--world-accent": item.accent } as React.CSSProperties} aria-label={`${item.label} ${item.name}. ${item.greeting}`}>
+                <span className="journey-dialogue">
+                  <WorldGuide guide={item.guide} />
+                  <span className="journey-bubble"><b>{item.guideName}</b>{item.greeting}</span>
+                </span>
+                <span className="journey-stone">
+                  <span className="journey-stone__number">{completedWorlds.includes(index) ? "✓" : index + 1}</span>
+                  <small>{item.label}</small>
+                  <strong>{item.name}</strong>
+                  <em>{item.tagline}</em>
+                  <span className="journey-letters">{item.rounds.map((lesson) => <i key={lesson.syllable}>{lesson.syllable}</i>)}</span>
+                </span>
               </button>
             ))}
           </div>

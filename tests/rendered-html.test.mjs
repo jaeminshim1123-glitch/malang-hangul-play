@@ -28,7 +28,7 @@ test("server-renders the Malang Hangul welcome adventure", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
-test("includes three worlds, twelve lessons, and recorded audio", async () => {
+test("includes six guided worlds, twelve lessons, and recorded audio", async () => {
   const [page, css, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -39,8 +39,11 @@ test("includes three worlds, twelve lessons, and recorded audio", async () => {
   for (const word of ["가방", "나비", "모자", "사과", "다람쥐", "라디오", "바나나", "자전거", "고래", "누나", "미끄럼틀", "소방차"]) {
     assert.match(page, new RegExp(word));
   }
-  for (const world of ["소리숲", "토끼 동산", "도토리 언덕"]) {
+  for (const world of ["소리숲", "도토리 오솔길", "햇살 들판", "밤꽃 언덕", "구름 놀이터", "무지개 정상"]) {
     assert.match(page, new RegExp(world));
+  }
+  for (const guide of ["난 토토야", "난 토리야", "난 루루야", "나는 밤이야", "나는 구름이야", "우리 모두 기다리고 있어"]) {
+    assert.match(page, new RegExp(guide));
   }
   assert.match(page, /<audio ref=\{audioRef\}/);
   assert.match(page, /\/audio\/\$\{file\}\.wav/);
@@ -48,6 +51,9 @@ test("includes three worlds, twelve lessons, and recorded audio", async () => {
   assert.match(page, /localStorage/);
   assert.match(page, /aria-live="polite"/);
   assert.match(page, /forest-cast/);
+  assert.match(page, /world-journey/);
+  assert.match(page, /journey-route/);
+  assert.doesNotMatch(page, /world-card__scene|world-cards/);
   assert.match(page, /\/brand\/malang-hangul-logo-transparent\.png/);
   assert.doesNotMatch(css, /NanumSquareRound/);
   assert.match(css, /font-family:\s*"Apple SD Gothic Neo",\s*"Pretendard"/);
