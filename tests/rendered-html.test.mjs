@@ -22,13 +22,13 @@ test("server-renders the Malang Hangul welcome adventure", async () => {
   const html = await response.text();
   assert.match(html, /<html lang="ko">/i);
   assert.match(html, /<title>말랑한글: 소리숲 탐험<\/title>/i);
-  assert.match(html, /사라진 소리를 찾아/);
-  assert.match(html, /탐험 시작!/);
-  assert.match(html, /점수와 시간 제한이 없어요/);
+  assert.match(html, /숲속 동산에서/);
+  assert.match(html, /탐험 지도 펼치기/);
+  assert.match(html, /시간 제한이 없어요/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
-test("includes the complete four-round learning loop", async () => {
+test("includes three worlds, twelve lessons, and recorded audio", async () => {
   const [page, css, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -36,9 +36,14 @@ test("includes the complete four-round learning loop", async () => {
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  for (const word of ["가방", "나비", "모자", "사과"]) {
+  for (const word of ["가방", "나비", "모자", "사과", "다람쥐", "라디오", "바나나", "자전거", "고래", "누나", "미끄럼틀", "소방차"]) {
     assert.match(page, new RegExp(word));
   }
+  for (const world of ["소리숲", "토끼 동산", "도토리 언덕"]) {
+    assert.match(page, new RegExp(world));
+  }
+  assert.match(page, /<audio ref=\{audioRef\}/);
+  assert.match(page, /\/audio\/\$\{file\}\.wav/);
   assert.match(page, /speechSynthesis/);
   assert.match(page, /localStorage/);
   assert.match(page, /aria-live="polite"/);
