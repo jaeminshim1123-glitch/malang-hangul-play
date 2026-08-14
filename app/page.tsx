@@ -280,7 +280,7 @@ export default function Home() {
             <small className="play-note">동산마다 약 5분 · 시간 제한이 없어요</small>
           </div>
           <div className="forest-scene forest-scene--alive" aria-label="글자꽃과 나무가 자라는 알록달록한 숲속 동산">
-            <div className="scene-bubble">친구야,<br /><b>같이 놀자!</b></div><CloudBuddy mood="cheer" />
+            <CloudBuddy mood="cheer" />
             <span className="tree tree--one"><i /><b>가</b></span><span className="tree tree--two"><i /><b>나</b></span><span className="tree tree--three"><i /><b>모</b></span>
             <span className="hill hill--back" /><span className="hill hill--front" />
             <span className="flower flower--one">✿</span><span className="flower flower--two">✿</span><span className="flower flower--three">✿</span>
@@ -291,6 +291,7 @@ export default function Home() {
               <img className="forest-character forest-character--bami" src="/characters/sprites/bami.png" alt="" />
               <img className="forest-character forest-character--tori" src="/characters/sprites/tori.png" alt="" />
             </div>
+            <div className="scene-bubble" aria-label="밤이가 말해요. 친구야, 같이 놀자!"><span>친구야,</span><br /><b>같이 놀자!</b></div>
           </div>
         </section>
       )}
