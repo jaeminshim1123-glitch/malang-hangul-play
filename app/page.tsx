@@ -286,6 +286,12 @@ export default function Home() {
             <span className="hill hill--back" /><span className="hill hill--front" />
             <span className="flower flower--one">✿</span><span className="flower flower--two">✿</span><span className="flower flower--three">✿</span>
             <ForestDetails />
+            <div className="forest-cast" role="img" aria-label="토끼 토토, 여우 루루, 고슴도치 밤이, 다람쥐 토리가 함께 모인 모습">
+              <img className="forest-character forest-character--toto" src="/characters/sprites/toto.png" alt="" />
+              <img className="forest-character forest-character--lulu" src="/characters/sprites/lulu.png" alt="" />
+              <img className="forest-character forest-character--bami" src="/characters/sprites/bami.png" alt="" />
+              <img className="forest-character forest-character--tori" src="/characters/sprites/tori.png" alt="" />
+            </div>
           </div>
         </section>
       )}
