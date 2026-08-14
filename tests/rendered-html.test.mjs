@@ -48,6 +48,9 @@ test("includes three worlds, twelve lessons, and recorded audio", async () => {
   assert.match(page, /localStorage/);
   assert.match(page, /aria-live="polite"/);
   assert.match(page, /forest-cast/);
+  assert.match(page, /\/brand\/malang-hangul-logo\.png/);
+  assert.match(css, /font-family:\s*"NanumSquareRound"/);
+  assert.match(css, /NanumSquareRound\.woff/);
   assert.match(page, /밤이가 말해요\. 친구야, 같이 놀자!/);
   for (const character of ["toto", "tori", "lulu", "bami"]) {
     assert.match(page, new RegExp(`/characters/sprites/${character}\\.png`));

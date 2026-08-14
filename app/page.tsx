@@ -259,7 +259,9 @@ export default function Home() {
       <div className="sky-decoration" aria-hidden="true"><span className="cloud cloud--one" /><span className="cloud cloud--two" /><span className="sun">✦</span></div>
 
       <header className="topbar">
-        <button className="brand" onClick={() => setPhase("welcome")} aria-label="처음 화면으로 이동"><span className="brand__mark">ㅁ</span><span><b>말랑한글</b><small>숲속 동산 탐험</small></span></button>
+        <button className="brand" onClick={() => setPhase("welcome")} aria-label="말랑한글 처음 화면으로 이동">
+          <img src="/brand/malang-hangul-logo.png" alt="말랑한글" />
+        </button>
         <div className="progress-wrap" aria-label={`전체 탐험 진행률 ${Math.round(progress)}퍼센트`}><div className="progress-label"><span>{phase === "welcome" || phase === "map" ? "동산 탐험 지도" : world.name}</span><b>{completedWorlds.length} / {worlds.length} 동산</b></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
         <button className="sound-toggle" onClick={() => {
           const next = !soundOn;

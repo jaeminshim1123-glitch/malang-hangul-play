@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "NanumSquareRound";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff") format("woff");
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+}
+
 :root {
   --ink: #263b42;
   --muted: #6c7d7c;
@@ -21,7 +29,7 @@ body {
   background:
     radial-gradient(circle at 12% 8%, rgba(255,255,255,.92) 0 5%, transparent 16%),
     linear-gradient(180deg, #dff4f0 0 46%, #f3ead1 100%);
-  font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  font-family: "NanumSquareRound", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
   font-weight: 600;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -40,11 +48,9 @@ button:focus-visible { outline: 4px solid rgba(74, 96, 202, .35); outline-offset
 .cloud--two { top: 148px; right: -20px; transform: scale(.5); opacity:.7; }
 .sun { position:absolute; top:86px; right:9%; width:50px; height:50px; border-radius:50%; background:#ffe98b; color:#e7ae32; display:grid; place-items:center; font-size:22px; box-shadow:0 0 0 15px rgba(255,233,139,.25); }
 
-.topbar { position: relative; z-index: 5; max-width: 1220px; margin: 0 auto 24px; display:grid; grid-template-columns: 220px minmax(220px, 420px) 220px; align-items:center; justify-content:space-between; gap:32px; }
-.brand { border:0; background:transparent; padding:0; display:flex; gap:12px; align-items:center; cursor:pointer; text-align:left; }
-.brand__mark { width:48px; height:48px; display:grid; place-items:center; border-radius:16px; background:#2c8467; color:white; font-size:25px; font-weight:900; transform:rotate(-5deg); box-shadow:0 5px 0 #1e654f; }
-.brand b { display:block; font-size:20px; letter-spacing:-.04em; }
-.brand small { color:var(--muted); font-size:12px; }
+.topbar { position: relative; z-index: 5; max-width: 1220px; margin: 0 auto 24px; display:grid; grid-template-columns: 250px minmax(220px, 420px) 220px; align-items:center; justify-content:space-between; gap:32px; }
+.brand { width:250px; border:0; background:transparent; padding:0; display:block; cursor:pointer; }
+.brand img { display:block; width:100%; height:auto; aspect-ratio:1923/817; object-fit:contain; border-radius:18px; box-shadow:0 6px 18px rgba(37,78,68,.1); }
 .progress-label { display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px; color:#4f6a67; }
 .progress-label b { color:var(--green); }
 .progress-track { height:12px; border:3px solid rgba(38,118,93,.16); border-radius:99px; background:rgba(255,255,255,.6); overflow:hidden; padding:1px; }
@@ -198,7 +204,7 @@ footer { position:relative;z-index:2;max-width:1180px;margin:22px auto 0;display
 
 @media (max-width: 850px) {
   .game-shell{padding:15px}
-  .topbar{grid-template-columns:1fr auto;gap:14px}.progress-wrap{grid-row:2;grid-column:1/-1}.sound-toggle{font-size:0}.sound-toggle span{font-size:13px}.brand small{display:none}
+  .topbar{grid-template-columns:1fr auto;gap:14px}.progress-wrap{grid-row:2;grid-column:1/-1}.sound-toggle{font-size:0}.sound-toggle span{font-size:13px}.brand{width:min(250px,65vw)}
   .welcome-card,.complete-card{grid-template-columns:1fr;min-height:auto;border-radius:30px}.welcome-copy,.complete-copy{padding:38px 28px 44px;order:2}.welcome-copy h1,.complete-copy h1{font-size:44px}.forest-scene,.complete-garden{min-height:370px;order:1}.forest-scene .buddy{top:28%}
   .scene-bubble{left:52%;top:42%;padding:11px 16px}.forest-scene--alive .buddy{left:27%;top:14%}
   .forest-character--toto{left:16%;width:95px}.forest-character--lulu{left:35%;width:83px;bottom:16%}.forest-character--bami{left:54%;width:76px;bottom:16%}.forest-character--tori{left:70%;width:112px}
