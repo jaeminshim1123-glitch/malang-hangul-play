@@ -48,7 +48,12 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /const roundSeeds: RoundSeed\[\] = \[/);
   assert.match(page, /const worlds: World\[\] = roundSeeds\.map/);
   assert.equal((page.match(/\{ syllable: "/g) ?? []).length, 50);
-  assert.match(page, /50개의 게임/);
+  assert.match(page, /function makeStageRounds/);
+  assert.match(page, /const count = 4 \+ \(stageIndex % 2\)/);
+  assert.match(page, /50개의 스테이지/);
+  assert.match(page, /\{totalSteps\}개의 글자 문제/);
+  assert.match(page, /동산마다 순서가 섞인 4~5개의 글자 문제/);
+  assert.match(page, /다음 문제 \(\$\{roundIndex \+ 2\}\/\$\{world\.rounds\.length\}\)/);
   assert.match(page, /50단계 탐험 지도/);
   assert.match(page, /<audio ref=\{audioRef\}/);
   assert.match(page, /\/audio\/\$\{file\}\.wav/);
@@ -66,6 +71,8 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(css, /\.topbar\s*\{[^}]*position:sticky;[^}]*top:0/);
   assert.match(css, /journey-row:not\(:last-child\)::after/);
   assert.match(css, /journey-bubble[^}]*font-size:14px/);
+  assert.match(css, /flower-shelf[^}]*grid-template-columns:repeat\(5,1fr\)/);
+  assert.match(css, /garden-flower--5/);
   assert.doesNotMatch(page, /world-card__scene|world-cards/);
   assert.match(page, /\/brand\/malang-hangul-logo-transparent\.png/);
   assert.doesNotMatch(css, /NanumSquareRound/);
