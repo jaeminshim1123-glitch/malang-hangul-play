@@ -93,12 +93,12 @@ const consonantNames: Record<string, string> = {
   "ㅇ": "이응", "ㅈ": "지읒", "ㅊ": "치읓", "ㅋ": "키읔", "ㅌ": "티읕", "ㅍ": "피읖", "ㅎ": "히읗",
 };
 const vowelNames: Record<string, string> = { "ㅏ": "아", "ㅓ": "어", "ㅗ": "오", "ㅜ": "우", "ㅣ": "이" };
-const DEFAULT_BGM_VOLUME = 0.34;
+const DEFAULT_BGM_VOLUME = 0.52;
 const GAME_BGM_SCALE = 0.9;
-const VOICE_DUCKING_SCALE = 0.35;
-const CORRECT_EFFECT_VOLUME = 0.18;
-const WRONG_EFFECT_VOLUME = 0.24;
-const FLOWER_EFFECT_VOLUME = 0.18;
+const VOICE_DUCKING_SCALE = 0.32;
+const CORRECT_EFFECT_VOLUME = 0.45;
+const WRONG_EFFECT_VOLUME = 0.5;
+const FLOWER_EFFECT_VOLUME = 0.45;
 const roundColors = ["#ff8067", "#7d6be8", "#28ae86", "#f3a727", "#4c9ec9", "#dc7796"];
 const worldAccents = ["#2f9270", "#9a7042", "#e17b61", "#7f6ac9", "#479a9e", "#dc7796"];
 const suffixes = ["꽃길", "놀이터", "언덕", "오솔길", "들판", "나무숲"];
@@ -660,8 +660,8 @@ export default function Home() {
 
       <p className="sr-only" aria-live="polite">{message}</p>
       <audio ref={audioRef} className="sr-only" preload="auto" aria-hidden="true" />
-      <audio ref={homeBgmRef} className="sr-only" src="/audio/music/home-bgm.mp3?v=1" preload="metadata" loop aria-hidden="true" />
-      <audio ref={gameBgmRef} className="sr-only" src="/audio/music/game-bgm.mp3?v=1" preload="metadata" loop aria-hidden="true" />
+      <audio ref={(audio) => { homeBgmRef.current = audio; if (audio) audio.volume = musicVolume; }} className="sr-only" src="/audio/music/home-bgm.mp3?v=1" preload="auto" autoPlay loop aria-hidden="true" />
+      <audio ref={gameBgmRef} className="sr-only" src="/audio/music/game-bgm.mp3?v=1" preload="auto" loop aria-hidden="true" />
       <audio ref={correctEffectRef} className="sr-only" src="/audio/music/correct.mp3?v=2" preload="auto" aria-hidden="true" />
       <audio ref={wrongEffectRef} className="sr-only" src="/audio/music/wrong.mp3?v=2" preload="auto" aria-hidden="true" />
       <audio ref={flowerEffectRef} className="sr-only" src="/audio/music/flower-success.mp3?v=2" preload="auto" aria-hidden="true" />

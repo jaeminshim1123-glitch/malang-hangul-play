@@ -148,12 +148,15 @@ test("uses adjustable looping music and preloaded answer effects", async () => {
     assert.ok((await stat(new URL(file, musicDirectory))).size > 1024, `${file} is missing or empty`);
   }
 
-  assert.match(page, /DEFAULT_BGM_VOLUME = 0\.34/);
+  assert.match(page, /DEFAULT_BGM_VOLUME = 0\.52/);
   assert.match(page, /GAME_BGM_SCALE = 0\.9/);
-  assert.match(page, /VOICE_DUCKING_SCALE = 0\.35/);
+  assert.match(page, /VOICE_DUCKING_SCALE = 0\.32/);
+  assert.match(page, /CORRECT_EFFECT_VOLUME = 0\.45/);
+  assert.match(page, /WRONG_EFFECT_VOLUME = 0\.5/);
+  assert.match(page, /FLOWER_EFFECT_VOLUME = 0\.45/);
   assert.match(page, /type="range"/);
   assert.match(page, /aria-label="배경음악 볼륨"/);
-  assert.match(page, /home-bgm\.mp3\?v=1[^\n]+loop/);
+  assert.match(page, /home-bgm\.mp3\?v=1[^\n]+autoPlay[^\n]+loop/);
   assert.match(page, /game-bgm\.mp3\?v=1[^\n]+loop/);
   assert.match(page, /playEffect\("correct", CORRECT_EFFECT_VOLUME\)/);
   assert.match(page, /playEffect\("wrong", WRONG_EFFECT_VOLUME\)/);
