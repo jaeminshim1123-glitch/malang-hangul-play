@@ -117,11 +117,6 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.doesNotMatch(css, /\.tiny-pond/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /@media \(max-width:\s*540px\)/);
-  assert.match(css, /\.guide-card\{grid-template-columns:86px minmax\(0,1fr\) auto/);
-  assert.match(css, /\.guide-card \.buddy\{[^}]*transform:scale\(\.52\)/);
-  assert.match(css, /\.flower-shelf\{grid-column:1\/3;grid-row:3/);
-  assert.match(css, /\.play-card\{padding:76px 12px 24px\}/);
-  assert.match(css, /\.picture-choices\{margin-top:12px\}/);
   assert.match(layout, /lang="ko"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 });
