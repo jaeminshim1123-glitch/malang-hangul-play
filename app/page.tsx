@@ -88,6 +88,11 @@ const roundSeeds: RoundSeed[] = [
 
 const consonants = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
 const vowels = ["ㅏ", "ㅓ", "ㅗ", "ㅜ", "ㅣ"];
+const consonantNames: Record<string, string> = {
+  "ㄱ": "기역", "ㄴ": "니은", "ㄷ": "디귿", "ㄹ": "리을", "ㅁ": "미음", "ㅂ": "비읍", "ㅅ": "시옷",
+  "ㅇ": "이응", "ㅈ": "지읒", "ㅊ": "치읓", "ㅋ": "키읔", "ㅌ": "티읕", "ㅍ": "피읖", "ㅎ": "히읗",
+};
+const vowelNames: Record<string, string> = { "ㅏ": "아", "ㅓ": "어", "ㅗ": "오", "ㅜ": "우", "ㅣ": "이" };
 const roundColors = ["#ff8067", "#7d6be8", "#28ae86", "#f3a727", "#4c9ec9", "#dc7796"];
 const worldAccents = ["#2f9270", "#9a7042", "#e17b61", "#7f6ac9", "#479a9e", "#dc7796"];
 const suffixes = ["꽃길", "놀이터", "언덕", "오솔길", "들판", "나무숲"];
@@ -309,7 +314,7 @@ export default function Home() {
   }, [soundOn, stopAudio]);
 
   const promptText = useMemo(() => phase === "build"
-    ? `${round.consonant}과 ${round.vowel}를 찾아서 ${round.syllable}를 만들어요.`
+    ? `${round.syllable}를 만들어 볼까? ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 찾아보자!`
     : `${round.syllable}로 시작하는 친구는 누구일까요?`, [phase, round]);
 
   const replayPrompt = useCallback(() => {
@@ -381,7 +386,7 @@ export default function Home() {
       setPickedVowel(round.vowel);
       setPictureSolved(true);
       setPhase("build");
-      setMessage(`${round.consonant}과 ${round.vowel}를 다시 맞춰 볼까요?`);
+      setMessage(`${round.syllable}를 다시 만들어 볼까요? ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 찾아봐요.`);
     }
   };
 
@@ -390,8 +395,8 @@ export default function Home() {
     setPickedConsonant(null);
     setPickedVowel(null);
     setPhase("build");
-    setMessage("이제 소리 조각을 합쳐 볼까요?");
-    playVoice(`build-${round.audioKey}`, `${round.consonant}과 ${round.vowel}를 찾아서 ${round.syllable}를 만들어요.`, true);
+    setMessage(`${round.syllable}를 만들어 볼까? ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 찾아보자!`);
+    playVoice(`build-${round.audioKey}`, `${round.syllable}를 만들어 볼까? ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 찾아보자!`, true);
   };
 
   const choosePicture = (word: string) => {
@@ -419,17 +424,21 @@ export default function Home() {
       window.setTimeout(() => setWrongTile(null), 550);
       return;
     }
+    const spokenName = type === "consonant" ? consonantNames[tile] : vowelNames[tile];
+    const successMessage = type === "consonant" ? `딩동댕! ${spokenName}을 찾았어.` : `맞아! ${spokenName}를 찾았어.`;
     if (type === "consonant") setPickedConsonant(tile);
     if (type === "vowel") setPickedVowel(tile);
-    setMessage(type === "consonant" ? `${tile}! 첫 조각을 찾았어요.` : `${tile}! 두 번째 조각을 찾았어요.`);
+    setMessage(successMessage);
+    const voiceIndex = (type === "consonant" ? consonants : vowels).indexOf(tile) + 1;
+    playVoice(`tile-${type}-${voiceIndex}`, successMessage);
   };
 
   const combine = () => {
     if (!pickedConsonant || !pickedVowel) return;
     setPetals((current) => current + 1);
-    setMessage(`${round.consonant}과 ${round.vowel}가 만나 ‘${round.syllable}’!`);
+    setMessage(`짜잔! ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 합치면 ‘${round.syllable}’! 글자꽃이 피었어요.`);
     setPhase("celebrate");
-    playVoice(`combine-${round.audioKey}`, `${round.consonant}과 ${round.vowel}가 만나 ${round.syllable}. ${round.word}!`);
+    playVoice(`combine-${round.audioKey}`, `짜잔! ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 합치면 ${round.syllable}! ${round.word}도 ${round.syllable}로 시작해. 글자꽃이 피었네!`);
   };
 
   const nextRound = () => {

@@ -81,6 +81,9 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /pictureSolved/);
   assert.match(page, /‘\$\{round\.syllable\}’ 소리를 다시 들어볼까\?/);
   assert.match(page, /playVoice\(`retry-\$\{round\.audioKey\}`/);
+  assert.match(page, /기역/);
+  assert.match(page, /짜잔! \$\{consonantNames\[round\.consonant\]\}과/);
+  assert.match(page, /playVoice\(`tile-\$\{type\}-\$\{voiceIndex\}`/);
   assert.doesNotMatch(page, /playVoice\("wrong"/);
   assert.doesNotMatch(page, /좋은 생각이야/);
   assert.match(page, /playVoice\(`correct-\$\{round\.audioKey\}`,[^\n]+false, showBuildScreen\)/);
@@ -114,7 +117,7 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
 test("includes every Google Cloud Leda voice clip used by the fifty stages", async () => {
   const audioDirectory = new URL("../public/audio/leda/", import.meta.url);
   const files = (await readdir(audioDirectory)).filter((file) => file.endsWith(".mp3"));
-  assert.equal(files.length, 254);
+  assert.equal(files.length, 273);
 
   for (const common of ["intro.mp3", "tile-wrong.mp3", "complete-4.mp3", "complete-5.mp3"]) {
     assert.ok(files.includes(common), `missing ${common}`);
@@ -126,5 +129,12 @@ test("includes every Google Cloud Leda voice clip used by the fifty stages", asy
       assert.ok(files.includes(file), `missing ${file}`);
       assert.ok((await stat(new URL(file, audioDirectory))).size > 512, `${file} is unexpectedly small`);
     }
+  }
+
+  for (let index = 1; index <= 14; index += 1) {
+    assert.ok(files.includes(`tile-consonant-${index}.mp3`), `missing tile-consonant-${index}.mp3`);
+  }
+  for (let index = 1; index <= 5; index += 1) {
+    assert.ok(files.includes(`tile-vowel-${index}.mp3`), `missing tile-vowel-${index}.mp3`);
   }
 });

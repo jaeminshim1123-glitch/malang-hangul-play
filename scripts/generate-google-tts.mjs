@@ -2,7 +2,8 @@ import { execFileSync } from "node:child_process";
 import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const [projectId, gcloudBin, cloudConfig] = process.argv.slice(2);
+const [projectId, gcloudBin, cloudConfig, ...options] = process.argv.slice(2);
+const refreshLearningFlow = options.includes("--refresh-learning-flow");
 
 if (!projectId || !gcloudBin || !cloudConfig) {
   throw new Error("Usage: node scripts/generate-google-tts.mjs PROJECT_ID GCLOUD_BIN CLOUDSDK_CONFIG");
@@ -33,13 +34,27 @@ const clips = [
   { file: "complete-5", text: "다섯 송이 글자꽃이 피었어요!" },
 ];
 
+const consonantNames = ["기역", "니은", "디귿", "리을", "미음", "비읍", "시옷", "이응", "지읒", "치읓", "키읔", "티읕", "피읖", "히읗"];
+const vowelNames = ["아", "어", "오", "우", "이"];
+const consonantNameByLetter = Object.fromEntries(["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"].map((letter, index) => [letter, consonantNames[index]]));
+const vowelNameByLetter = Object.fromEntries(["ㅏ", "ㅓ", "ㅗ", "ㅜ", "ㅣ"].map((letter, index) => [letter, vowelNames[index]]));
+
+for (const [index, name] of consonantNames.entries()) {
+  clips.push({ file: `tile-consonant-${index + 1}`, text: `딩동댕! ${name}을 찾았어.` });
+}
+for (const [index, name] of vowelNames.entries()) {
+  clips.push({ file: `tile-vowel-${index + 1}`, text: `맞아! ${name}를 찾았어.` });
+}
+
 for (const [index, seed] of seeds.entries()) {
   const key = `letter-${index + 1}`;
+  const consonantName = consonantNameByLetter[seed.consonant];
+  const vowelName = vowelNameByLetter[seed.vowel];
   clips.push(
     { file: `prompt-${key}`, text: `${seed.syllable}로 시작하는 친구는 누구일까요?` },
-    { file: `build-${key}`, text: `${seed.consonant}과 ${seed.vowel}를 찾아서 ${seed.syllable}를 만들어요.` },
+    { file: `build-${key}`, text: `${seed.syllable}를 만들어 볼까? ${consonantName}과 ${vowelName}를 찾아보자!` },
     { file: `correct-${key}`, text: `딩동댕! ${seed.word}${topicParticle(seed.word)} ${seed.syllable}로 시작해요.` },
-    { file: `combine-${key}`, text: `${seed.consonant}과 ${seed.vowel}가 만나 ${seed.syllable}. ${seed.word}!` },
+    { file: `combine-${key}`, text: `짜잔! ${consonantName}과 ${vowelName}를 합치면 ${seed.syllable}! ${seed.word}도 ${seed.syllable}로 시작해. 글자꽃이 피었네!` },
     { file: `retry-${key}`, text: `${seed.syllable} 소리를 다시 들어볼까?` },
   );
 }
@@ -53,6 +68,7 @@ const accessToken = execFileSync(gcloudBin, ["auth", "print-access-token"], {
 }).trim();
 
 async function alreadyGenerated(file) {
+  if (refreshLearningFlow && (/^(build|combine)-/.test(file) || /^tile-(consonant|vowel)-/.test(file))) return false;
   try {
     return (await stat(path.join(outputDir, `${file}.mp3`))).size > 512;
   } catch {
