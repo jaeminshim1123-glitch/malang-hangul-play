@@ -49,6 +49,9 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /const worlds: World\[\] = roundSeeds\.map/);
   assert.equal((page.match(/\{ syllable: "/g) ?? []).length, 50);
   assert.match(page, /function makeStageRounds/);
+  assert.match(page, /function validateAllChoices/);
+  assert.match(page, /validateAllChoices\(worlds\)/);
+  assert.match(page, /new Set\(group\.values\)\.size !== group\.values\.length/);
   assert.match(page, /const count = 4 \+ \(stageIndex % 2\)/);
   assert.match(page, /50개의 스테이지/);
   assert.match(page, /\{totalSteps\}개의 글자 문제/);
@@ -68,7 +71,11 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /journey-tree/);
   assert.match(page, /home-button/);
   assert.match(page, /onClick=\{goHome\}/);
+  assert.match(page, /game-back-button/);
+  assert.match(page, /onClick=\{goPreviousScreen\}/);
+  assert.match(page, /clearTransitionTimer/);
   assert.match(css, /\.topbar\s*\{[^}]*position:sticky;[^}]*top:0/);
+  assert.match(css, /\.game-back-button\s*\{/);
   assert.match(css, /journey-row:not\(:last-child\)::after/);
   assert.match(css, /journey-bubble[^}]*font-size:14px/);
   assert.match(css, /flower-shelf[^}]*grid-template-columns:repeat\(5,1fr\)/);

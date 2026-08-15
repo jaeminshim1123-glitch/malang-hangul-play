@@ -102,7 +102,8 @@ function mixedOptions(answer: string, pool: string[], index: number) {
 }
 
 function makeRound(seed: RoundSeed, index: number): LearningRound {
-  const distractors = [roundSeeds[(index + 11) % roundSeeds.length], roundSeeds[(index + 27) % roundSeeds.length]];
+  const distractorPool = roundSeeds.filter((candidate) => candidate.word !== seed.word);
+  const distractors = [distractorPool[index % distractorPool.length], distractorPool[(index + 19) % distractorPool.length]];
   const choices = [seed, ...distractors].map(({ word, emoji }) => ({ word, emoji }));
   const shift = index % 3;
   return {
@@ -163,6 +164,26 @@ const worlds: World[] = roundSeeds.map((seed, index) => {
     rounds,
   };
 });
+
+function validateAllChoices(items: World[]) {
+  for (const [worldIndex, item] of items.entries()) {
+    for (const [roundIndex, round] of item.rounds.entries()) {
+      const groups = [
+        { name: "word", values: round.choices.map((choice) => choice.word), answer: round.word },
+        { name: "consonant", values: round.consonantChoices, answer: round.consonant },
+        { name: "vowel", values: round.vowelChoices, answer: round.vowel },
+      ];
+      for (const group of groups) {
+        const answerCount = group.values.filter((value) => value === group.answer).length;
+        if (new Set(group.values).size !== group.values.length || answerCount !== 1) {
+          throw new Error(`Invalid ${group.name} choices at stage ${worldIndex + 1}, question ${roundIndex + 1}`);
+        }
+      }
+    }
+  }
+}
+
+validateAllChoices(worlds);
 
 function fallbackSpeak(text: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -225,6 +246,7 @@ export default function Home() {
   const [petals, setPetals] = useState(0);
   const [completedWorlds, setCompletedWorlds] = useState<number[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const transitionTimerRef = useRef<number | null>(null);
 
   const world = worlds[worldIndex];
   const round = world.rounds[roundIndex];
@@ -250,6 +272,13 @@ export default function Home() {
     if (typeof window !== "undefined") window.speechSynthesis?.cancel();
   }, []);
 
+  const clearTransitionTimer = useCallback(() => {
+    if (transitionTimerRef.current !== null) {
+      window.clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = null;
+    }
+  }, []);
+
   const playVoice = useCallback((file: string, fallback: string, force = false) => {
     if (!soundOn && !force) return;
     stopAudio();
@@ -273,18 +302,21 @@ export default function Home() {
   }, [phase, playVoice, promptText, round.audioKey]);
 
   const openMap = () => {
+    clearTransitionTimer();
     stopAudio();
     setPhase("map");
     setMessage("가고 싶은 동산을 골라 주세요.");
   };
 
   const goHome = () => {
+    clearTransitionTimer();
     stopAudio();
     setPhase("welcome");
     setMessage("숲속 친구들과 동산을 탐험해 볼까요?");
   };
 
   const startWorld = (index: number) => {
+    clearTransitionTimer();
     const nextWorld = worlds[index];
     setWorldIndex(index);
     setRoundIndex(0);
@@ -298,12 +330,30 @@ export default function Home() {
     playVoice(`prompt-${nextWorld.rounds[0].audioKey}`, `${nextWorld.rounds[0].syllable}로 시작하는 친구는 누구일까요?`, true);
   };
 
+  const goPreviousScreen = () => {
+    clearTransitionTimer();
+    stopAudio();
+    setWrongChoice(null);
+    setWrongTile(null);
+    setPickedConsonant(null);
+    setPickedVowel(null);
+    if (phase === "build") {
+      setPhase("sound");
+      setMessage(`${round.syllable}로 시작하는 그림을 다시 찾아봐요.`);
+      playVoice(`prompt-${round.audioKey}`, `${round.syllable}로 시작하는 친구는 누구일까요?`, true);
+      return;
+    }
+    openMap();
+  };
+
   const choosePicture = (word: string) => {
     if (word === round.word) {
       setWrongChoice(null);
       setMessage(`딩동댕! ${round.word}은 ‘${round.syllable}’로 시작해요.`);
       playVoice(`correct-${round.audioKey}`, `딩동댕! ${round.word}은 ${round.syllable}로 시작해요.`);
-      window.setTimeout(() => {
+      clearTransitionTimer();
+      transitionTimerRef.current = window.setTimeout(() => {
+        transitionTimerRef.current = null;
         setPickedConsonant(null);
         setPickedVowel(null);
         setPhase("build");
@@ -450,6 +500,7 @@ export default function Home() {
         <section className="mission-layout">
           <aside className="guide-card"><div className="guide-badge">{world.name} · {roundIndex + 1} / {world.rounds.length} 문제</div><CloudBuddy /><div className="speech-card"><p>{message}</p><button onClick={replayPrompt} disabled={!soundOn}><span aria-hidden="true">▶</span> 다시 듣기</button></div><div className="flower-shelf" aria-label={`모은 글자꽃 ${petals}개`}>{world.rounds.map((item, index) => <span key={item.syllable} className={index < petals ? "is-grown" : ""}><i>✿</i><small>{index < petals ? item.syllable : "?"}</small></span>)}</div><button className="map-link" onClick={openMap}>⌂ 탐험 지도</button></aside>
           <div className="play-card" style={{ "--round-color": round.color } as React.CSSProperties}>
+            <button className="game-back-button" onClick={goPreviousScreen}><span aria-hidden="true">←</span> 이전 화면</button>
             <div className="step-title"><span>{phase === "sound" ? "첫 번째 놀이" : "두 번째 놀이"}</span><h2>{phase === "sound" ? <><em>‘{round.syllable}’</em>로 시작하는 친구는?</> : <><em>소리 조각</em>을 맞춰 보세요</>}</h2><p>{phase === "sound" ? "그림을 콕 눌러 주세요" : `${round.consonant} + ${round.vowel} = 어떤 글자가 될까요?`}</p></div>
             {phase === "sound" && <div className="picture-choices">{round.choices.map((choice) => <button key={choice.word} onClick={() => choosePicture(choice.word)} className={wrongChoice === choice.word ? "is-wrong" : ""} aria-label={`${choice.word} 그림`}><span>{choice.emoji}</span><b>{choice.word}</b><i aria-hidden="true">콕!</i></button>)}</div>}
             {phase === "build" && <div className="builder"><div className="build-stage" aria-label="글자 조립판"><div className={`letter-slot ${pickedConsonant ? "is-filled" : ""}`}>{pickedConsonant ?? <span>자음</span>}</div><span className="plus">+</span><div className={`letter-slot ${pickedVowel ? "is-filled" : ""}`}>{pickedVowel ?? <span>모음</span>}</div><span className="equals">=</span><div className={`letter-result ${pickedConsonant && pickedVowel ? "is-ready" : ""}`}>{pickedConsonant && pickedVowel ? round.syllable : "?"}</div></div><div className="tile-groups"><div><span>자음 친구</span><div>{round.consonantChoices.map((tile) => <button key={tile} className={`${pickedConsonant === tile ? "is-picked" : ""} ${wrongTile === `consonant-${tile}` ? "is-wrong" : ""}`} onClick={() => chooseTile(tile, "consonant")}>{tile}</button>)}</div></div><div><span>모음 친구</span><div>{round.vowelChoices.map((tile) => <button key={tile} className={`${pickedVowel === tile ? "is-picked" : ""} ${wrongTile === `vowel-${tile}` ? "is-wrong" : ""}`} onClick={() => chooseTile(tile, "vowel")}>{tile}</button>)}</div></div></div><button className="combine-button" disabled={!pickedConsonant || !pickedVowel} onClick={combine}>{pickedConsonant && pickedVowel ? "글자 합치기!" : "두 조각을 찾아 주세요"}</button></div>}
