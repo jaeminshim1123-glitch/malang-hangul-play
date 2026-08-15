@@ -30,7 +30,7 @@ body {
 button { font: inherit; color: inherit; }
 button:focus-visible { outline: 4px solid rgba(74, 96, 202, .35); outline-offset: 3px; }
 
-.game-shell { min-height: 100vh; position: relative; overflow: hidden; padding: 22px clamp(18px, 4vw, 60px) 20px; }
+.game-shell { min-height: 100vh; position: relative; overflow: clip; padding: 22px clamp(18px, 4vw, 60px) 20px; }
 .sky-decoration { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .cloud { position: absolute; width: 120px; height: 34px; border-radius: 99px; background: rgba(255,255,255,.68); filter: blur(.2px); }
 .cloud::before,.cloud::after { content:""; position:absolute; border-radius:50%; background:inherit; }
@@ -40,8 +40,11 @@ button:focus-visible { outline: 4px solid rgba(74, 96, 202, .35); outline-offset
 .cloud--two { top: 148px; right: -20px; transform: scale(.5); opacity:.7; }
 .sun { position:absolute; top:86px; right:9%; width:50px; height:50px; border-radius:50%; background:#ffe98b; color:#e7ae32; display:grid; place-items:center; font-size:22px; box-shadow:0 0 0 15px rgba(255,233,139,.25); }
 
-.topbar { position: relative; z-index: 5; max-width: 1220px; margin: 0 auto 24px; display:grid; grid-template-columns: 250px minmax(220px, 420px) 220px; align-items:center; justify-content:space-between; gap:32px; }
-.brand { width:250px; border:0; background:transparent; padding:0; display:block; cursor:pointer; }
+.topbar { position:sticky; top:0; z-index:30; max-width:1220px; margin:0 auto 24px; padding:10px 14px; display:grid; grid-template-columns:330px minmax(220px,420px) 170px; align-items:center; justify-content:space-between; gap:26px; border:1px solid rgba(255,255,255,.72); border-radius:26px; background:rgba(225,247,243,.9); box-shadow:0 10px 30px rgba(50,91,79,.12); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+.topbar__brand-group { min-width:0; display:flex; align-items:center; gap:11px; }
+.home-button { flex:0 0 76px; min-height:48px; border:1px solid rgba(38,118,93,.18); border-radius:16px; background:rgba(255,255,255,.75); color:#376d5d; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; box-shadow:0 4px 10px rgba(37,78,68,.08); }
+.home-button span { font-size:22px; line-height:1; }.home-button b{font-size:10px}.home-button:disabled{visibility:hidden;pointer-events:none}
+.brand { width:220px; border:0; background:transparent; padding:0; display:block; cursor:pointer; }
 .brand img { display:block; width:100%; height:auto; aspect-ratio:1923/817; object-fit:contain; filter:drop-shadow(0 6px 10px rgba(37,78,68,.1)); }
 .progress-label { display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px; color:#4f6a67; }
 .progress-label b { color:var(--green); }
@@ -112,10 +115,14 @@ h1 em,.complete-copy h1 em { color:var(--coral); font-style:normal; position:rel
 .world-map-card::before { content:""; position:absolute; inset:auto -10% -22% -10%; height:50%; border-radius:50% 50% 0 0; background:linear-gradient(180deg,rgba(148,205,157,.18),rgba(62,150,103,.12)); pointer-events:none; }
 .map-heading { text-align:center; position:relative; z-index:2; }
 .map-heading .eyebrow { margin-bottom:12px; }.map-heading h1{margin:0;color:#28473f;font-size:clamp(34px,4.5vw,52px);letter-spacing:-.055em}.map-heading h1 em{font-style:normal;color:#e87962}.map-heading p{color:#73817c;margin:8px 0 14px;font-size:14px}
-.world-journey { position:relative; z-index:3; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:46px 50px; padding:38px 18px 8px; }
-.journey-route { position:absolute; z-index:0; left:16.5%; right:16.5%; top:248px; height:338px; border:6px dashed #d9ceb5; border-left:0; border-radius:0 94px 94px 0; opacity:.82; }
+.world-journey { position:relative; z-index:3; display:flex; flex-direction:column; gap:46px; padding:38px 18px 8px; }
+.journey-row { position:relative; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:50px; }
+.journey-row::before { content:""; position:absolute; z-index:0; left:16.5%; right:16.5%; top:210px; border-top:6px dashed #d9ceb5; opacity:.82; }
+.journey-row:not(:last-child)::after { content:""; position:absolute; z-index:0; right:16.5%; top:210px; height:calc(100% + 46px); border-right:6px dashed #d9ceb5; border-radius:0 80px 80px 0; opacity:.82; }
+.journey-row--reverse::after { left:16.5%; right:auto!important; border-right:0!important; border-left:6px dashed #d9ceb5; border-radius:80px 0 0 80px!important; }
+.journey-row--reverse .journey-stop:nth-child(1){grid-column:3;grid-row:1}.journey-row--reverse .journey-stop:nth-child(2){grid-column:2;grid-row:1}.journey-row--reverse .journey-stop:nth-child(3){grid-column:1;grid-row:1}
+.journey-row:last-child::before { right:50%; }
 .journey-stop { --world-accent:#2f9270; position:relative; z-index:2; min-width:0; border:0; padding:0; background:transparent; cursor:pointer; text-align:left; transition:transform .18s ease; }
-.journey-stop--4 { grid-column:3; grid-row:2; }.journey-stop--5{grid-column:2;grid-row:2}.journey-stop--6{grid-column:1;grid-row:2}
 .journey-stop:hover { transform:translateY(-5px); }
 .journey-dialogue { min-height:128px; display:flex; align-items:flex-end; gap:10px; padding:0 3px 13px; }
 .journey-guide { flex:0 0 82px; height:94px; display:flex; align-items:flex-end; justify-content:center; position:relative; }
@@ -213,11 +220,11 @@ footer { position:relative;z-index:2;max-width:1180px;margin:22px auto 0;display
 
 @media (max-width: 850px) {
   .game-shell{padding:15px}
-  .topbar{grid-template-columns:1fr auto;gap:14px}.progress-wrap{grid-row:2;grid-column:1/-1}.sound-toggle{font-size:0}.sound-toggle span{font-size:13px}.brand{width:min(250px,65vw)}
+  .topbar{top:0;grid-template-columns:1fr auto;gap:8px 12px;padding:8px 10px;border-radius:20px}.topbar__brand-group{min-width:0;gap:7px}.home-button{flex-basis:44px;min-height:43px}.home-button b{display:none}.progress-wrap{grid-row:2;grid-column:1/-1}.sound-toggle{font-size:0;padding:8px}.sound-toggle span{font-size:13px}.brand{width:min(190px,47vw)}
   .welcome-card,.complete-card{grid-template-columns:1fr;min-height:auto;border-radius:30px}.welcome-copy,.complete-copy{padding:38px 28px 44px;order:2}.welcome-copy h1,.complete-copy h1{font-size:44px}.forest-scene,.complete-garden{min-height:370px;order:1}.forest-scene .buddy{top:28%}
   .scene-bubble{left:52%;top:42%;padding:11px 16px}.forest-scene--alive .buddy{left:27%;top:14%}
   .forest-character--toto{left:16%;width:95px}.forest-character--lulu{left:35%;width:83px;bottom:16%}.forest-character--bami{left:54%;width:76px;bottom:16%}.forest-character--tori{left:70%;width:112px}
-  .world-map-card{padding:35px 20px;min-height:auto}.world-journey{grid-template-columns:1fr;gap:29px;padding:28px 10px 10px 52px}.journey-route{left:29px;right:auto;top:55px;bottom:50px;width:0;height:auto;border:0;border-left:5px dashed #d9ceb5;border-radius:0}.journey-stop--4,.journey-stop--5,.journey-stop--6{grid-column:1;grid-row:auto}.journey-dialogue{min-height:118px}.journey-bubble{font-size:14px}.journey-stone{min-height:154px}
+  .world-map-card{padding:35px 20px;min-height:auto}.world-journey{gap:29px;padding:28px 10px 10px 52px}.world-journey::before{content:"";position:absolute;z-index:0;left:29px;top:55px;bottom:50px;border-left:5px dashed #d9ceb5}.journey-row{grid-template-columns:1fr;gap:29px}.journey-row::before,.journey-row::after{display:none}.journey-row--reverse .journey-stop:nth-child(1),.journey-row--reverse .journey-stop:nth-child(2),.journey-row--reverse .journey-stop:nth-child(3){grid-column:1;grid-row:auto}.journey-dialogue{min-height:118px}.journey-bubble{font-size:14px}.journey-stone{min-height:154px}
   .mission-layout{grid-template-columns:1fr;min-height:auto}.guide-card{display:grid;grid-template-columns:100px 1fr;gap:12px;padding:18px}.guide-card .buddy{grid-row:2;margin:5px auto;transform:scale(.75)}.guide-badge{grid-column:1/-1}.speech-card{grid-row:2}.flower-shelf{grid-column:1/-1;margin-top:0;padding-top:14px}
   .play-card{padding:32px 18px}.picture-choices{gap:9px}.picture-choices button{min-height:190px;border-radius:22px}.picture-choices button>span{font-size:55px}.picture-choices button b{font-size:17px}
 }

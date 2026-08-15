@@ -28,7 +28,7 @@ test("server-renders the Malang Hangul welcome adventure", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
-test("includes six guided worlds, twelve lessons, and recorded audio", async () => {
+test("includes fifty guided games, sticky navigation, and recorded audio", async () => {
   const [page, css, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -36,15 +36,20 @@ test("includes six guided worlds, twelve lessons, and recorded audio", async () 
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  for (const word of ["가방", "나비", "모자", "사과", "다람쥐", "라디오", "바나나", "자전거", "고래", "누나", "미끄럼틀", "소방차"]) {
+  for (const word of ["가방", "나비", "다람쥐", "라디오", "마법사", "바나나", "사과", "자전거", "거북이", "허수아비", "고래", "도토리", "소방차", "코끼리", "무지개", "수박", "우산"]) {
     assert.match(page, new RegExp(word));
   }
-  for (const world of ["소리숲", "도토리 오솔길", "햇살 들판", "밤꽃 언덕", "구름 놀이터", "무지개 정상"]) {
+  for (const world of ["소리숲", "도토리 오솔길", "햇살 들판", "밤꽃 언덕", "구름 놀이터"]) {
     assert.match(page, new RegExp(world));
   }
-  for (const guide of ["난 토토야", "난 토리야", "난 루루야", "나는 밤이야", "나는 구름이야", "우리 모두 기다리고 있어"]) {
+  for (const guide of ["난 토토야", "난 토리야", "난 루루야", "나는 밤이야", "나는 구름이야", "깡충깡충 준비 완료", "도토리를 챙겨 왔어", "꼬리를 살랑살랑", "반짝이는 글자 조각"]) {
     assert.match(page, new RegExp(guide));
   }
+  assert.match(page, /const roundSeeds: RoundSeed\[\] = \[/);
+  assert.match(page, /const worlds: World\[\] = roundSeeds\.map/);
+  assert.equal((page.match(/\{ syllable: "/g) ?? []).length, 50);
+  assert.match(page, /50개의 게임/);
+  assert.match(page, /50단계 탐험 지도/);
   assert.match(page, /<audio ref=\{audioRef\}/);
   assert.match(page, /\/audio\/\$\{file\}\.wav/);
   assert.match(page, /speechSynthesis/);
@@ -52,11 +57,14 @@ test("includes six guided worlds, twelve lessons, and recorded audio", async () 
   assert.match(page, /aria-live="polite"/);
   assert.match(page, /forest-cast/);
   assert.match(page, /world-journey/);
-  assert.match(page, /journey-route/);
+  assert.match(page, /journey-row--reverse/);
   assert.match(page, /journey-stone__copy/);
   assert.match(page, /journey-nature/);
   assert.match(page, /journey-tree/);
-  assert.match(css, /journey-stop--4\s*\{[^}]*grid-row:2/);
+  assert.match(page, /home-button/);
+  assert.match(page, /onClick=\{goHome\}/);
+  assert.match(css, /\.topbar\s*\{[^}]*position:sticky;[^}]*top:0/);
+  assert.match(css, /journey-row:not\(:last-child\)::after/);
   assert.match(css, /journey-bubble[^}]*font-size:14px/);
   assert.doesNotMatch(page, /world-card__scene|world-cards/);
   assert.match(page, /\/brand\/malang-hangul-logo-transparent\.png/);
