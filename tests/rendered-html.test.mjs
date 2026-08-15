@@ -89,6 +89,13 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /playVoice\(`correct-\$\{round\.audioKey\}`,[^\n]+false, showBuildScreen\)/);
   assert.match(page, /if \(phase === "sound"\) \{\s*\n\s*showBuildScreen\(\)/);
   assert.match(page, /const nextScreenDisabled = phase === "build"/);
+  assert.match(page, /if \(phase === "map"\) return "intro"/);
+  assert.match(page, /if \(phase === "sound"\) return `prompt-\$\{round\.audioKey\}`/);
+  assert.match(page, /if \(phase === "build"\) return `build-\$\{round\.audioKey\}`/);
+  assert.match(page, /if \(phase === "celebrate"\) return `combine-\$\{round\.audioKey\}`/);
+  assert.match(page, /if \(phase === "complete"\) return `complete-\$\{world\.rounds\.length\}`/);
+  assert.match(page, /const voice = currentScreenVoice\(\)/);
+  assert.doesNotMatch(page, /phase === "sound" \|\| phase === "build"[^\n]+: "intro"/);
   assert.match(css, /\.topbar\s*\{[^}]*position:sticky;[^}]*top:0/);
   assert.match(css, /\.game-navigation\s*\{[^}]*position:absolute;[^}]*right:28px;[^}]*top:27px/);
   assert.match(css, /\.game-nav-button\s*\{/);

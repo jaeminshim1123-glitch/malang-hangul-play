@@ -383,6 +383,15 @@ export default function Home() {
     playVoice(`${phase === "build" ? "build" : "prompt"}-${round.audioKey}`);
   }, [phase, playVoice, round.audioKey]);
 
+  const currentScreenVoice = useCallback(() => {
+    if (phase === "map") return "intro";
+    if (phase === "sound") return `prompt-${round.audioKey}`;
+    if (phase === "build") return `build-${round.audioKey}`;
+    if (phase === "celebrate") return `combine-${round.audioKey}`;
+    if (phase === "complete") return `complete-${world.rounds.length}`;
+    return null;
+  }, [phase, round.audioKey, world.rounds.length]);
+
   const openMap = () => {
     clearAutoAdvance();
     stopAudio();
@@ -579,7 +588,8 @@ export default function Home() {
               stopEffect();
             } else {
               playBackgroundMusic(phase, true);
-              playVoice(phase === "sound" || phase === "build" ? `${phase === "build" ? "build" : "prompt"}-${round.audioKey}` : "intro", true);
+              const voice = currentScreenVoice();
+              if (voice) playVoice(voice, true);
             }
           }} aria-label={soundOn ? "소리 끄기" : "소리 켜기"} aria-pressed={soundOn}><span aria-hidden="true">{soundOn ? "♫" : "—"}</span>{soundOn ? "소리 켜짐" : "소리 꺼짐"}</button>
         </div>
