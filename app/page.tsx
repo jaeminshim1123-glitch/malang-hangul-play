@@ -93,9 +93,9 @@ const consonantNames: Record<string, string> = {
   "ㅇ": "이응", "ㅈ": "지읒", "ㅊ": "치읓", "ㅋ": "키읔", "ㅌ": "티읕", "ㅍ": "피읖", "ㅎ": "히읗",
 };
 const vowelNames: Record<string, string> = { "ㅏ": "아", "ㅓ": "어", "ㅗ": "오", "ㅜ": "우", "ㅣ": "이" };
-const HOME_BGM_VOLUME = 0.11;
-const GAME_BGM_VOLUME = 0.08;
-const DUCKED_BGM_VOLUME = 0.025;
+const DEFAULT_BGM_VOLUME = 0.34;
+const GAME_BGM_SCALE = 0.9;
+const VOICE_DUCKING_SCALE = 0.35;
 const CORRECT_EFFECT_VOLUME = 0.18;
 const WRONG_EFFECT_VOLUME = 0.24;
 const FLOWER_EFFECT_VOLUME = 0.18;
@@ -248,10 +248,13 @@ export default function Home() {
   const [petals, setPetals] = useState(0);
   const [completedWorlds, setCompletedWorlds] = useState<number[]>([]);
   const [voicePlaying, setVoicePlaying] = useState(false);
+  const [musicVolume, setMusicVolume] = useState(DEFAULT_BGM_VOLUME);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const homeBgmRef = useRef<HTMLAudioElement | null>(null);
   const gameBgmRef = useRef<HTMLAudioElement | null>(null);
-  const effectRef = useRef<HTMLAudioElement | null>(null);
+  const correctEffectRef = useRef<HTMLAudioElement | null>(null);
+  const wrongEffectRef = useRef<HTMLAudioElement | null>(null);
+  const flowerEffectRef = useRef<HTMLAudioElement | null>(null);
   const autoAdvanceTimerRef = useRef<number | null>(null);
 
   const world = worlds[worldIndex];
@@ -285,9 +288,11 @@ export default function Home() {
   }, []);
 
   const stopEffect = useCallback(() => {
-    if (!effectRef.current) return;
-    effectRef.current.pause();
-    effectRef.current.currentTime = 0;
+    [correctEffectRef.current, wrongEffectRef.current, flowerEffectRef.current].forEach((effect) => {
+      if (!effect) return;
+      effect.pause();
+      effect.currentTime = 0;
+    });
   }, []);
 
   const playBackgroundMusic = useCallback((targetPhase: Phase, force = false) => {
@@ -298,9 +303,10 @@ export default function Home() {
     inactive?.pause();
     if (!active) return;
     active.loop = true;
-    active.volume = voicePlaying ? DUCKED_BGM_VOLUME : (useHomeMusic ? HOME_BGM_VOLUME : GAME_BGM_VOLUME);
+    const phaseVolume = musicVolume * (useHomeMusic ? 1 : GAME_BGM_SCALE);
+    active.volume = voicePlaying ? phaseVolume * VOICE_DUCKING_SCALE : phaseVolume;
     void active.play().catch(() => undefined);
-  }, [soundOn, voicePlaying]);
+  }, [musicVolume, soundOn, voicePlaying]);
 
   useEffect(() => {
     if (!soundOn) {
@@ -325,13 +331,16 @@ export default function Home() {
   useEffect(() => () => clearAutoAdvance(), [clearAutoAdvance]);
 
   const playEffect = useCallback((file: "correct" | "wrong" | "flower-success", volume: number) => {
-    if (!soundOn || !effectRef.current) return;
-    const effect = effectRef.current;
+    if (!soundOn) return;
+    const effect = file === "correct"
+      ? correctEffectRef.current
+      : file === "wrong"
+        ? wrongEffectRef.current
+        : flowerEffectRef.current;
+    if (!effect) return;
     effect.pause();
     effect.currentTime = 0;
-    effect.src = `/audio/music/${file}.mp3?v=1`;
     effect.volume = volume;
-    effect.load();
     void effect.play().catch(() => undefined);
   }, [soundOn]);
 
@@ -547,18 +556,26 @@ export default function Home() {
           </button>
         </div>
         <div className="progress-wrap" aria-label={`전체 탐험 진행률 ${Math.round(progress)}퍼센트`}><div className="progress-label"><span>{phase === "welcome" || phase === "map" ? "50단계 탐험 지도" : world.name}</span><b>{completedWorlds.length} / {worlds.length} 단계</b></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
-        <button className="sound-toggle" onClick={() => {
-          const next = !soundOn;
-          setSoundOn(next);
-          if (!next) {
-            stopAudio();
-            pauseBackgroundMusic();
-            stopEffect();
-          } else {
-            playBackgroundMusic(phase, true);
-            playVoice(phase === "sound" || phase === "build" ? `${phase === "build" ? "build" : "prompt"}-${round.audioKey}` : "intro", true);
-          }
-        }} aria-label={soundOn ? "소리 끄기" : "소리 켜기"} aria-pressed={soundOn}><span aria-hidden="true">{soundOn ? "♫" : "—"}</span>{soundOn ? "소리 켜짐" : "소리 꺼짐"}</button>
+        <div className="audio-controls">
+          <label className="music-volume">
+            <span aria-hidden="true">♪</span>
+            <b>배경음</b>
+            <input type="range" min="0" max="100" step="1" value={Math.round(musicVolume * 100)} onChange={(event) => setMusicVolume(Number(event.currentTarget.value) / 100)} aria-label="배경음악 볼륨" aria-valuetext={`${Math.round(musicVolume * 100)}퍼센트`} />
+            <output>{Math.round(musicVolume * 100)}%</output>
+          </label>
+          <button className="sound-toggle" onClick={() => {
+            const next = !soundOn;
+            setSoundOn(next);
+            if (!next) {
+              stopAudio();
+              pauseBackgroundMusic();
+              stopEffect();
+            } else {
+              playBackgroundMusic(phase, true);
+              playVoice(phase === "sound" || phase === "build" ? `${phase === "build" ? "build" : "prompt"}-${round.audioKey}` : "intro", true);
+            }
+          }} aria-label={soundOn ? "소리 끄기" : "소리 켜기"} aria-pressed={soundOn}><span aria-hidden="true">{soundOn ? "♫" : "—"}</span>{soundOn ? "소리 켜짐" : "소리 꺼짐"}</button>
+        </div>
       </header>
 
       {phase === "welcome" && (
@@ -645,7 +662,9 @@ export default function Home() {
       <audio ref={audioRef} className="sr-only" preload="auto" aria-hidden="true" />
       <audio ref={homeBgmRef} className="sr-only" src="/audio/music/home-bgm.mp3?v=1" preload="metadata" loop aria-hidden="true" />
       <audio ref={gameBgmRef} className="sr-only" src="/audio/music/game-bgm.mp3?v=1" preload="metadata" loop aria-hidden="true" />
-      <audio ref={effectRef} className="sr-only" preload="auto" aria-hidden="true" />
+      <audio ref={correctEffectRef} className="sr-only" src="/audio/music/correct.mp3?v=2" preload="auto" aria-hidden="true" />
+      <audio ref={wrongEffectRef} className="sr-only" src="/audio/music/wrong.mp3?v=2" preload="auto" aria-hidden="true" />
+      <audio ref={flowerEffectRef} className="sr-only" src="/audio/music/flower-success.mp3?v=2" preload="auto" aria-hidden="true" />
       <footer><span>말랑한글 연구소</span><p>아이의 속도로, 놀이처럼 천천히 배워요.</p></footer>
     </main>
   );

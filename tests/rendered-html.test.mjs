@@ -139,7 +139,7 @@ test("includes every Google Cloud Leda voice clip used by the fifty stages", asy
   }
 });
 
-test("uses the provided looping music and low-volume answer effects", async () => {
+test("uses adjustable looping music and preloaded answer effects", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const musicDirectory = new URL("../public/audio/music/", import.meta.url);
   const expectedFiles = ["home-bgm.mp3", "game-bgm.mp3", "correct.mp3", "wrong.mp3", "flower-success.mp3"];
@@ -148,13 +148,19 @@ test("uses the provided looping music and low-volume answer effects", async () =
     assert.ok((await stat(new URL(file, musicDirectory))).size > 1024, `${file} is missing or empty`);
   }
 
-  assert.match(page, /HOME_BGM_VOLUME = 0\.11/);
-  assert.match(page, /GAME_BGM_VOLUME = 0\.08/);
-  assert.match(page, /DUCKED_BGM_VOLUME = 0\.025/);
+  assert.match(page, /DEFAULT_BGM_VOLUME = 0\.34/);
+  assert.match(page, /GAME_BGM_SCALE = 0\.9/);
+  assert.match(page, /VOICE_DUCKING_SCALE = 0\.35/);
+  assert.match(page, /type="range"/);
+  assert.match(page, /aria-label="배경음악 볼륨"/);
   assert.match(page, /home-bgm\.mp3\?v=1[^\n]+loop/);
   assert.match(page, /game-bgm\.mp3\?v=1[^\n]+loop/);
   assert.match(page, /playEffect\("correct", CORRECT_EFFECT_VOLUME\)/);
   assert.match(page, /playEffect\("wrong", WRONG_EFFECT_VOLUME\)/);
   assert.match(page, /playEffect\("flower-success", FLOWER_EFFECT_VOLUME\)/);
+  assert.match(page, /correctEffectRef[^]*correct\.mp3\?v=2/);
+  assert.match(page, /wrongEffectRef[^]*wrong\.mp3\?v=2/);
+  assert.match(page, /flowerEffectRef[^]*flower-success\.mp3\?v=2/);
+  assert.doesNotMatch(page, /effect\.src\s*=/);
   assert.doesNotMatch(page, /speechSynthesis|SpeechSynthesisUtterance|fallbackSpeak/);
 });
