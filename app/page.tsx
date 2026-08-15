@@ -196,6 +196,13 @@ function validateAllChoices(items: World[]) {
 
 validateAllChoices(worlds);
 
+function assetUrl(path: string) {
+  const cleanPath = path.replace(/^\/+/, "");
+  const configuredBase = typeof document === "undefined" ? "/" : (document.documentElement.dataset.assetBase ?? "/");
+  const base = configuredBase.endsWith("/") ? configuredBase : `${configuredBase}/`;
+  return `${base}${cleanPath}`;
+}
+
 function CloudBuddy({ mood = "happy" }: { mood?: "happy" | "cheer" }) {
   return (
     <div className={`buddy buddy--${mood}`} aria-hidden="true">
@@ -216,12 +223,12 @@ function WorldGuide({ guide }: { guide: World["guide"] }) {
   if (guide === "friends") {
     return (
       <span className="journey-guide journey-guide--friends" aria-hidden="true">
-        {(["toto", "tori", "lulu", "bami"] as const).map((friend) => <img key={friend} src={`/characters/sprites/${friend}.png`} alt="" />)}
+        {(["toto", "tori", "lulu", "bami"] as const).map((friend) => <img key={friend} src={assetUrl(`characters/sprites/${friend}.png`)} alt="" />)}
       </span>
     );
   }
 
-  return <span className="journey-guide"><img src={`/characters/sprites/${guide}.png`} alt="" /></span>;
+  return <span className="journey-guide"><img src={assetUrl(`characters/sprites/${guide}.png`)} alt="" /></span>;
 }
 
 function ForestDetails() {
@@ -357,7 +364,7 @@ export default function Home() {
       onEnded?.();
       return;
     }
-    audio.src = `/audio/leda/${file}.mp3?v=2`;
+    audio.src = `${assetUrl(`audio/leda/${file}.mp3`)}?v=2`;
     audio.volume = 1;
     audio.onended = () => {
       audio.onended = null;
@@ -552,7 +559,7 @@ export default function Home() {
         <div className="topbar__brand-group">
           <button className="home-button" onClick={goHome} disabled={phase === "welcome"} aria-label="말랑한글 메인 화면으로 돌아가기"><span aria-hidden="true">←</span><b>처음으로</b></button>
           <button className="brand" onClick={goHome} aria-label="말랑한글 처음 화면으로 이동">
-            <img src="/brand/malang-hangul-logo-transparent.png" alt="말랑한글" />
+            <img src={assetUrl("brand/malang-hangul-logo-transparent.png")} alt="말랑한글" />
           </button>
         </div>
         <div className="progress-wrap" aria-label={`전체 탐험 진행률 ${Math.round(progress)}퍼센트`}><div className="progress-label"><span>{phase === "welcome" || phase === "map" ? "50단계 탐험 지도" : world.name}</span><b>{completedWorlds.length} / {worlds.length} 단계</b></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
@@ -595,10 +602,10 @@ export default function Home() {
             <span className="flower flower--one">✿</span><span className="flower flower--two">✿</span><span className="flower flower--three">✿</span>
             <ForestDetails />
             <div className="forest-cast" role="img" aria-label="토끼 토토, 여우 루루, 고슴도치 밤이, 다람쥐 토리가 함께 모인 모습">
-              <img className="forest-character forest-character--toto" src="/characters/sprites/toto.png" alt="" />
-              <img className="forest-character forest-character--lulu" src="/characters/sprites/lulu.png" alt="" />
-              <img className="forest-character forest-character--bami" src="/characters/sprites/bami.png" alt="" />
-              <img className="forest-character forest-character--tori" src="/characters/sprites/tori.png" alt="" />
+              <img className="forest-character forest-character--toto" src={assetUrl("characters/sprites/toto.png")} alt="" />
+              <img className="forest-character forest-character--lulu" src={assetUrl("characters/sprites/lulu.png")} alt="" />
+              <img className="forest-character forest-character--bami" src={assetUrl("characters/sprites/bami.png")} alt="" />
+              <img className="forest-character forest-character--tori" src={assetUrl("characters/sprites/tori.png")} alt="" />
             </div>
             <div className="scene-bubble" aria-label="밤이가 말해요. 친구야, 같이 놀자!"><span>친구야,</span><br /><b>같이 놀자!</b></div>
           </div>
@@ -660,11 +667,11 @@ export default function Home() {
 
       <p className="sr-only" aria-live="polite">{message}</p>
       <audio ref={audioRef} className="sr-only" preload="auto" aria-hidden="true" />
-      <audio ref={(audio) => { homeBgmRef.current = audio; if (audio) audio.volume = musicVolume; }} className="sr-only" src="/audio/music/home-bgm.mp3?v=1" preload="auto" autoPlay loop aria-hidden="true" />
-      <audio ref={gameBgmRef} className="sr-only" src="/audio/music/game-bgm.mp3?v=1" preload="auto" loop aria-hidden="true" />
-      <audio ref={correctEffectRef} className="sr-only" src="/audio/music/correct.mp3?v=2" preload="auto" aria-hidden="true" />
-      <audio ref={wrongEffectRef} className="sr-only" src="/audio/music/wrong.mp3?v=2" preload="auto" aria-hidden="true" />
-      <audio ref={flowerEffectRef} className="sr-only" src="/audio/music/flower-success.mp3?v=2" preload="auto" aria-hidden="true" />
+      <audio ref={(audio) => { homeBgmRef.current = audio; if (audio) audio.volume = musicVolume; }} className="sr-only" src={`${assetUrl("audio/music/home-bgm.mp3")}?v=1`} preload="auto" autoPlay loop aria-hidden="true" />
+      <audio ref={gameBgmRef} className="sr-only" src={`${assetUrl("audio/music/game-bgm.mp3")}?v=1`} preload="auto" loop aria-hidden="true" />
+      <audio ref={correctEffectRef} className="sr-only" src={`${assetUrl("audio/music/correct.mp3")}?v=2`} preload="auto" aria-hidden="true" />
+      <audio ref={wrongEffectRef} className="sr-only" src={`${assetUrl("audio/music/wrong.mp3")}?v=2`} preload="auto" aria-hidden="true" />
+      <audio ref={flowerEffectRef} className="sr-only" src={`${assetUrl("audio/music/flower-success.mp3")}?v=2`} preload="auto" aria-hidden="true" />
       <footer><span>말랑한글 연구소</span><p>아이의 속도로, 놀이처럼 천천히 배워요.</p></footer>
     </main>
   );

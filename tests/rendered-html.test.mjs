@@ -59,7 +59,7 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /다음 문제 \(\$\{roundIndex \+ 2\}\/\$\{world\.rounds\.length\}\)/);
   assert.match(page, /50단계 탐험 지도/);
   assert.match(page, /<audio ref=\{audioRef\}/);
-  assert.match(page, /\/audio\/leda\/\$\{file\}\.mp3\?v=2/);
+  assert.match(page, /assetUrl\(`audio\/leda\/\$\{file\}\.mp3`\)/);
   assert.doesNotMatch(page, /speechSynthesis|SpeechSynthesisUtterance|fallbackSpeak/);
   assert.match(page, /localStorage/);
   assert.match(page, /aria-live="polite"/);
@@ -98,12 +98,12 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(css, /flower-shelf[^}]*grid-template-columns:repeat\(5,1fr\)/);
   assert.match(css, /garden-flower--5/);
   assert.doesNotMatch(page, /world-card__scene|world-cards/);
-  assert.match(page, /\/brand\/malang-hangul-logo-transparent\.png/);
+  assert.match(page, /assetUrl\("brand\/malang-hangul-logo-transparent\.png"\)/);
   assert.doesNotMatch(css, /NanumSquareRound/);
   assert.match(css, /font-family:\s*"Apple SD Gothic Neo",\s*"Pretendard"/);
   assert.match(page, /밤이가 말해요\. 친구야, 같이 놀자!/);
   for (const character of ["toto", "tori", "lulu", "bami"]) {
-    assert.match(page, new RegExp(`/characters/sprites/${character}\\.png`));
+    assert.match(page, new RegExp(`characters/sprites/${character}\\.png`));
   }
   assert.doesNotMatch(page, /ForestFriends|콩이|🐰|🐸|🦔|world\.animal/);
   assert.doesNotMatch(page, /tiny-pond/);
@@ -156,14 +156,28 @@ test("uses adjustable looping music and preloaded answer effects", async () => {
   assert.match(page, /FLOWER_EFFECT_VOLUME = 0\.45/);
   assert.match(page, /type="range"/);
   assert.match(page, /aria-label="배경음악 볼륨"/);
-  assert.match(page, /home-bgm\.mp3\?v=1[^\n]+autoPlay[^\n]+loop/);
-  assert.match(page, /game-bgm\.mp3\?v=1[^\n]+loop/);
+  assert.match(page, /assetUrl\("audio\/music\/home-bgm\.mp3"\)[^\n]+autoPlay[^\n]+loop/);
+  assert.match(page, /assetUrl\("audio\/music\/game-bgm\.mp3"\)[^\n]+loop/);
   assert.match(page, /playEffect\("correct", CORRECT_EFFECT_VOLUME\)/);
   assert.match(page, /playEffect\("wrong", WRONG_EFFECT_VOLUME\)/);
   assert.match(page, /playEffect\("flower-success", FLOWER_EFFECT_VOLUME\)/);
-  assert.match(page, /correctEffectRef[^]*correct\.mp3\?v=2/);
-  assert.match(page, /wrongEffectRef[^]*wrong\.mp3\?v=2/);
-  assert.match(page, /flowerEffectRef[^]*flower-success\.mp3\?v=2/);
+  assert.match(page, /correctEffectRef[^]*assetUrl\("audio\/music\/correct\.mp3"\)/);
+  assert.match(page, /wrongEffectRef[^]*assetUrl\("audio\/music\/wrong\.mp3"\)/);
+  assert.match(page, /flowerEffectRef[^]*assetUrl\("audio\/music\/flower-success\.mp3"\)/);
   assert.doesNotMatch(page, /effect\.src\s*=/);
   assert.doesNotMatch(page, /speechSynthesis|SpeechSynthesisUtterance|fallbackSpeak/);
+});
+
+test("includes a GitHub Pages static build and deployment workflow", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  const packageJson = await readFile(new URL("../package.json", import.meta.url), "utf8");
+  const workflow = await readFile(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8");
+  const pagesConfig = await readFile(new URL("../vite.pages.config.ts", import.meta.url), "utf8");
+
+  assert.match(html, /data-asset-base="\/malang-hangul-play\/"/);
+  assert.match(packageJson, /"build:pages": "vite build --config vite\.pages\.config\.ts"/);
+  assert.match(pagesConfig, /base: "\/malang-hangul-play\/"/);
+  assert.match(workflow, /actions\/configure-pages@v5/);
+  assert.match(workflow, /actions\/upload-pages-artifact@v4/);
+  assert.match(workflow, /actions\/deploy-pages@v4/);
 });
