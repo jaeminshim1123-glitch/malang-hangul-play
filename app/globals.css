@@ -166,8 +166,11 @@ h1 em,.complete-copy h1 em { color:var(--coral); font-style:normal; position:rel
 .map-link { margin-top:17px;border:0;background:transparent;color:#71847b;text-decoration:underline;text-underline-offset:3px;font-size:11px;cursor:pointer; }
 .play-card { --round-color:#ff8067; padding:clamp(28px,5vw,55px); position:relative; overflow:hidden; }
 .play-card::after { content:"";position:absolute;width:210px;height:210px;border-radius:50%;right:-105px;top:-105px;background:color-mix(in srgb,var(--round-color) 16%,transparent); }
-.game-back-button { position:relative; z-index:3; display:inline-flex; align-items:center; gap:7px; margin:0 0 8px; padding:9px 13px; border:2px solid color-mix(in srgb,var(--round-color) 22%,#dfe9e2); border-radius:14px; background:rgba(255,255,255,.78); color:#587169; font-size:12px; cursor:pointer; box-shadow:0 4px 0 color-mix(in srgb,var(--round-color) 10%,#dce5de); transition:transform .15s,box-shadow .15s; }
-.game-back-button span { color:var(--round-color); font-size:18px; line-height:1; }.game-back-button:hover{transform:translateY(-2px);box-shadow:0 6px 0 color-mix(in srgb,var(--round-color) 14%,#dce5de)}
+.game-navigation { position:relative; z-index:3; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 8px; }
+.game-navigation--celebrate { margin:-27px 0 4px; }
+.game-nav-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-width:108px; padding:9px 13px; border:2px solid color-mix(in srgb,var(--round-color) 22%,#dfe9e2); border-radius:14px; background:rgba(255,255,255,.82); color:#587169; font-size:12px; cursor:pointer; box-shadow:0 4px 0 color-mix(in srgb,var(--round-color) 10%,#dce5de); transition:transform .15s,box-shadow .15s,opacity .15s; }
+.game-nav-button span { color:var(--round-color); font-size:18px; line-height:1; }.game-nav-button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 0 color-mix(in srgb,var(--round-color) 14%,#dce5de)}
+.game-nav-button--next { color:color-mix(in srgb,var(--round-color) 72%,#35554b); }.game-nav-button:disabled{opacity:.38;cursor:not-allowed;box-shadow:none}
 .step-title { text-align:center; position:relative; z-index:1; }
 .step-title > span { display:inline-block;color:var(--round-color);font-size:12px;letter-spacing:.08em;margin-bottom:8px; }
 .step-title h2 { font-size:clamp(26px,4vw,38px);margin:0;letter-spacing:-.045em; }.step-title h2 em{font-style:normal;color:var(--round-color)}
@@ -176,6 +179,7 @@ h1 em,.complete-copy h1 em { color:var(--coral); font-style:normal; position:rel
 .picture-choices button { position:relative;min-height:280px;border:3px solid #e7eee7;border-radius:30px;background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;box-shadow:0 9px 0 #dfe9e1;transition:transform .16s,border-color .16s,box-shadow .16s; }
 .picture-choices button:hover { transform:translateY(-7px) rotate(-1deg);border-color:var(--round-color);box-shadow:0 15px 0 color-mix(in srgb,var(--round-color) 22%,#dfe9e1); }
 .picture-choices button:nth-child(2):hover { transform:translateY(-7px) rotate(1deg); }
+.picture-choices button:disabled{cursor:default}.picture-choices button:disabled:hover{transform:none}.picture-choices button.is-correct{border-color:#43ae83;background:#effbf5;box-shadow:0 9px 0 #b9e3d0}.picture-choices button.is-correct::after{content:"딩동댕!";position:absolute;left:50%;top:16px;transform:translateX(-50%);padding:6px 10px;border-radius:99px;background:#43ae83;color:#fff;font-size:11px}
 .picture-choices button > span { font-size:80px;line-height:1;filter:drop-shadow(0 8px 3px rgba(44,68,61,.1)); }.picture-choices button b{font-size:22px}.picture-choices button i{position:absolute;right:15px;top:15px;background:#eff7f2;color:#5d8173;border-radius:99px;padding:6px 9px;font-size:10px;font-style:normal;opacity:0;transition:opacity .15s}.picture-choices button:hover i{opacity:1}
 .is-wrong { animation:shake .45s ease!important; border-color:#ff9f8f!important; }
 

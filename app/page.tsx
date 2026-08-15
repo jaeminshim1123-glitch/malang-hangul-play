@@ -243,10 +243,10 @@ export default function Home() {
   const [pickedConsonant, setPickedConsonant] = useState<string | null>(null);
   const [pickedVowel, setPickedVowel] = useState<string | null>(null);
   const [wrongTile, setWrongTile] = useState<string | null>(null);
+  const [pictureSolved, setPictureSolved] = useState(false);
   const [petals, setPetals] = useState(0);
   const [completedWorlds, setCompletedWorlds] = useState<number[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const transitionTimerRef = useRef<number | null>(null);
 
   const world = worlds[worldIndex];
   const round = world.rounds[roundIndex];
@@ -272,13 +272,6 @@ export default function Home() {
     if (typeof window !== "undefined") window.speechSynthesis?.cancel();
   }, []);
 
-  const clearTransitionTimer = useCallback(() => {
-    if (transitionTimerRef.current !== null) {
-      window.clearTimeout(transitionTimerRef.current);
-      transitionTimerRef.current = null;
-    }
-  }, []);
-
   const playVoice = useCallback((file: string, fallback: string, force = false) => {
     if (!soundOn && !force) return;
     stopAudio();
@@ -302,21 +295,18 @@ export default function Home() {
   }, [phase, playVoice, promptText, round.audioKey]);
 
   const openMap = () => {
-    clearTransitionTimer();
     stopAudio();
     setPhase("map");
     setMessage("가고 싶은 동산을 골라 주세요.");
   };
 
   const goHome = () => {
-    clearTransitionTimer();
     stopAudio();
     setPhase("welcome");
     setMessage("숲속 친구들과 동산을 탐험해 볼까요?");
   };
 
   const startWorld = (index: number) => {
-    clearTransitionTimer();
     const nextWorld = worlds[index];
     setWorldIndex(index);
     setRoundIndex(0);
@@ -325,40 +315,57 @@ export default function Home() {
     setPickedVowel(null);
     setWrongChoice(null);
     setWrongTile(null);
+    setPictureSolved(false);
     setPhase("sound");
     setMessage("귀를 쫑긋! 첫소리를 찾아봐요.");
     playVoice(`prompt-${nextWorld.rounds[0].audioKey}`, `${nextWorld.rounds[0].syllable}로 시작하는 친구는 누구일까요?`, true);
   };
 
   const goPreviousScreen = () => {
-    clearTransitionTimer();
     stopAudio();
     setWrongChoice(null);
     setWrongTile(null);
-    setPickedConsonant(null);
-    setPickedVowel(null);
+    if (phase === "sound") {
+      if (roundIndex === 0) {
+        openMap();
+        return;
+      }
+      const previousIndex = roundIndex - 1;
+      const previousRound = world.rounds[previousIndex];
+      setRoundIndex(previousIndex);
+      setPickedConsonant(previousRound.consonant);
+      setPickedVowel(previousRound.vowel);
+      setPictureSolved(true);
+      setPhase("celebrate");
+      setMessage(`${previousRound.syllable} 글자꽃을 다시 살펴봐요.`);
+      return;
+    }
     if (phase === "build") {
+      setPickedConsonant(null);
+      setPickedVowel(null);
+      setPictureSolved(true);
       setPhase("sound");
       setMessage(`${round.syllable}로 시작하는 그림을 다시 찾아봐요.`);
       playVoice(`prompt-${round.audioKey}`, `${round.syllable}로 시작하는 친구는 누구일까요?`, true);
       return;
     }
-    openMap();
+    if (phase === "celebrate") {
+      setPetals(roundIndex);
+      setPickedConsonant(round.consonant);
+      setPickedVowel(round.vowel);
+      setPictureSolved(true);
+      setPhase("build");
+      setMessage(`${round.consonant}과 ${round.vowel}를 다시 맞춰 볼까요?`);
+    }
   };
 
   const choosePicture = (word: string) => {
+    if (pictureSolved) return;
     if (word === round.word) {
       setWrongChoice(null);
-      setMessage(`딩동댕! ${round.word}은 ‘${round.syllable}’로 시작해요.`);
+      setPictureSolved(true);
+      setMessage(`딩동댕! ${round.word}은 ‘${round.syllable}’로 시작해요. 다음 화면으로 가 볼까요?`);
       playVoice(`correct-${round.audioKey}`, `딩동댕! ${round.word}은 ${round.syllable}로 시작해요.`);
-      clearTransitionTimer();
-      transitionTimerRef.current = window.setTimeout(() => {
-        transitionTimerRef.current = null;
-        setPickedConsonant(null);
-        setPickedVowel(null);
-        setPhase("build");
-        setMessage("이제 소리 조각을 합쳐 볼까요?");
-      }, 1250);
       return;
     }
     setWrongChoice(word);
@@ -405,6 +412,7 @@ export default function Home() {
     setPickedVowel(null);
     setWrongChoice(null);
     setWrongTile(null);
+    setPictureSolved(false);
     setPhase("sound");
     setMessage("다음 소리 친구를 찾아봐요.");
     playVoice(`prompt-${world.rounds[next].audioKey}`, `${world.rounds[next].syllable}로 시작하는 친구는 누구일까요?`);
@@ -414,6 +422,25 @@ export default function Home() {
     if (worldIndex < worlds.length - 1) startWorld(worldIndex + 1);
     else openMap();
   };
+
+  const goNextScreen = () => {
+    stopAudio();
+    if (phase === "sound" && pictureSolved) {
+      setPickedConsonant(null);
+      setPickedVowel(null);
+      setPhase("build");
+      setMessage("이제 소리 조각을 합쳐 볼까요?");
+      playVoice(`build-${round.audioKey}`, `${round.consonant}과 ${round.vowel}를 찾아서 ${round.syllable}를 만들어요.`, true);
+      return;
+    }
+    if (phase === "build" && pickedConsonant && pickedVowel) {
+      combine();
+      return;
+    }
+    if (phase === "celebrate") nextRound();
+  };
+
+  const nextScreenDisabled = phase === "sound" ? !pictureSolved : phase === "build" ? !pickedConsonant || !pickedVowel : false;
 
   return (
     <main className={`game-shell world-theme-${worldIndex}`}>
@@ -500,15 +527,18 @@ export default function Home() {
         <section className="mission-layout">
           <aside className="guide-card"><div className="guide-badge">{world.name} · {roundIndex + 1} / {world.rounds.length} 문제</div><CloudBuddy /><div className="speech-card"><p>{message}</p><button onClick={replayPrompt} disabled={!soundOn}><span aria-hidden="true">▶</span> 다시 듣기</button></div><div className="flower-shelf" aria-label={`모은 글자꽃 ${petals}개`}>{world.rounds.map((item, index) => <span key={item.syllable} className={index < petals ? "is-grown" : ""}><i>✿</i><small>{index < petals ? item.syllable : "?"}</small></span>)}</div><button className="map-link" onClick={openMap}>⌂ 탐험 지도</button></aside>
           <div className="play-card" style={{ "--round-color": round.color } as React.CSSProperties}>
-            <button className="game-back-button" onClick={goPreviousScreen}><span aria-hidden="true">←</span> 이전 화면</button>
+            <div className="game-navigation" aria-label="게임 화면 이동">
+              <button className="game-nav-button" onClick={goPreviousScreen}><span aria-hidden="true">←</span> 이전 화면</button>
+              <button className="game-nav-button game-nav-button--next" onClick={goNextScreen} disabled={nextScreenDisabled}>다음 화면 <span aria-hidden="true">→</span></button>
+            </div>
             <div className="step-title"><span>{phase === "sound" ? "첫 번째 놀이" : "두 번째 놀이"}</span><h2>{phase === "sound" ? <><em>‘{round.syllable}’</em>로 시작하는 친구는?</> : <><em>소리 조각</em>을 맞춰 보세요</>}</h2><p>{phase === "sound" ? "그림을 콕 눌러 주세요" : `${round.consonant} + ${round.vowel} = 어떤 글자가 될까요?`}</p></div>
-            {phase === "sound" && <div className="picture-choices">{round.choices.map((choice) => <button key={choice.word} onClick={() => choosePicture(choice.word)} className={wrongChoice === choice.word ? "is-wrong" : ""} aria-label={`${choice.word} 그림`}><span>{choice.emoji}</span><b>{choice.word}</b><i aria-hidden="true">콕!</i></button>)}</div>}
+            {phase === "sound" && <div className="picture-choices">{round.choices.map((choice) => <button key={choice.word} onClick={() => choosePicture(choice.word)} disabled={pictureSolved} className={`${wrongChoice === choice.word ? "is-wrong" : ""} ${pictureSolved && choice.word === round.word ? "is-correct" : ""}`} aria-label={`${choice.word} 그림`}><span>{choice.emoji}</span><b>{choice.word}</b><i aria-hidden="true">콕!</i></button>)}</div>}
             {phase === "build" && <div className="builder"><div className="build-stage" aria-label="글자 조립판"><div className={`letter-slot ${pickedConsonant ? "is-filled" : ""}`}>{pickedConsonant ?? <span>자음</span>}</div><span className="plus">+</span><div className={`letter-slot ${pickedVowel ? "is-filled" : ""}`}>{pickedVowel ?? <span>모음</span>}</div><span className="equals">=</span><div className={`letter-result ${pickedConsonant && pickedVowel ? "is-ready" : ""}`}>{pickedConsonant && pickedVowel ? round.syllable : "?"}</div></div><div className="tile-groups"><div><span>자음 친구</span><div>{round.consonantChoices.map((tile) => <button key={tile} className={`${pickedConsonant === tile ? "is-picked" : ""} ${wrongTile === `consonant-${tile}` ? "is-wrong" : ""}`} onClick={() => chooseTile(tile, "consonant")}>{tile}</button>)}</div></div><div><span>모음 친구</span><div>{round.vowelChoices.map((tile) => <button key={tile} className={`${pickedVowel === tile ? "is-picked" : ""} ${wrongTile === `vowel-${tile}` ? "is-wrong" : ""}`} onClick={() => chooseTile(tile, "vowel")}>{tile}</button>)}</div></div></div><button className="combine-button" disabled={!pickedConsonant || !pickedVowel} onClick={combine}>{pickedConsonant && pickedVowel ? "글자 합치기!" : "두 조각을 찾아 주세요"}</button></div>}
           </div>
         </section>
       )}
 
-      {phase === "celebrate" && <section className="celebrate-card" style={{ "--round-color": round.color } as React.CSSProperties}><div className="confetti" aria-hidden="true">✦ <i>●</i> ✿ <b>▲</b> ✦ <i>●</i> ✿</div><div className="word-flower"><span className="word-flower__petal word-flower__petal--one" /><span className="word-flower__petal word-flower__petal--two" /><span className="word-flower__petal word-flower__petal--three" /><span className="word-flower__petal word-flower__petal--four" /><b>{round.syllable}</b></div><span className="success-label">{roundIndex + 1}번째 글자꽃이 피었어요!</span><h2><em>{round.consonant}</em> + <em>{round.vowel}</em> = <strong>{round.syllable}</strong></h2><div className="learned-word"><span>{round.emoji}</span><p><b>{round.word}</b><small>“{round.word}”의 첫 글자예요</small></p></div><button className="primary-button" onClick={nextRound}>{roundIndex === world.rounds.length - 1 ? `${world.name} 완성하기` : `다음 문제 (${roundIndex + 2}/${world.rounds.length})`} <span aria-hidden="true">→</span></button></section>}
+      {phase === "celebrate" && <section className="celebrate-card" style={{ "--round-color": round.color } as React.CSSProperties}><div className="game-navigation game-navigation--celebrate" aria-label="게임 화면 이동"><button className="game-nav-button" onClick={goPreviousScreen}><span aria-hidden="true">←</span> 이전 화면</button><button className="game-nav-button game-nav-button--next" onClick={goNextScreen}>다음 화면 <span aria-hidden="true">→</span></button></div><div className="confetti" aria-hidden="true">✦ <i>●</i> ✿ <b>▲</b> ✦ <i>●</i> ✿</div><div className="word-flower"><span className="word-flower__petal word-flower__petal--one" /><span className="word-flower__petal word-flower__petal--two" /><span className="word-flower__petal word-flower__petal--three" /><span className="word-flower__petal word-flower__petal--four" /><b>{round.syllable}</b></div><span className="success-label">{roundIndex + 1}번째 글자꽃이 피었어요!</span><h2><em>{round.consonant}</em> + <em>{round.vowel}</em> = <strong>{round.syllable}</strong></h2><div className="learned-word"><span>{round.emoji}</span><p><b>{round.word}</b><small>“{round.word}”의 첫 글자예요</small></p></div><button className="primary-button" onClick={nextRound}>{roundIndex === world.rounds.length - 1 ? `${world.name} 완성하기` : `다음 문제 (${roundIndex + 2}/${world.rounds.length})`} <span aria-hidden="true">→</span></button></section>}
 
       {phase === "complete" && <section className="complete-card"><div className={`complete-garden complete-garden--${worldIndex + 1}`} aria-label={`${world.name}의 글자꽃 정원`}>{world.rounds.map((item, index) => <div className={`garden-flower garden-flower--${index + 1}`} key={item.syllable}><i>✿</i><b>{item.syllable}</b></div>)}<CloudBuddy mood="cheer" /><div className="garden-sparkles" aria-hidden="true">✦ <i>✦</i> ✦</div></div><div className="complete-copy"><span className="eyebrow">{world.label} 탐험 완료</span><h1>{world.completeTitle.split(" ").slice(0, -1).join(" ")}<br /><em>{world.completeTitle.split(" ").at(-1)}</em></h1><p>{world.completeCopy}</p><div className="reward-ticket"><span>✿</span><p><small>이번 동산에서 피운 꽃</small><b>{world.rounds.length}송이</b></p></div><button className="primary-button" onClick={goNextWorld}>{worldIndex < worlds.length - 1 ? `다음: ${worlds[worldIndex + 1].name}` : "탐험 지도 보기"} <span aria-hidden="true">→</span></button><button className="text-button" onClick={() => startWorld(worldIndex)}>이 동산 한 번 더</button><button className="text-button text-button--map" onClick={openMap}>다른 동산 고르기</button></div></section>}
 
