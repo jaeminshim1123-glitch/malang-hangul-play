@@ -61,7 +61,12 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /<audio ref=\{audioRef\}/);
   assert.match(page, /assetUrl\(`audio\/leda\/\$\{file\}\.mp3`\)/);
   assert.doesNotMatch(page, /speechSynthesis|SpeechSynthesisUtterance|fallbackSpeak/);
-  assert.match(page, /localStorage/);
+  assert.match(page, /localStorage\.removeItem\("malang-completed-worlds-50-multi"\)/);
+  assert.doesNotMatch(page, /localStorage\.(?:getItem|setItem)/);
+  assert.match(page, /window\.addEventListener\("pageshow", handlePageShow\)/);
+  assert.match(page, /if \(event\.persisted\) resetToFreshStart\(\)/);
+  assert.match(page, /setPhase\("welcome"\)/);
+  assert.match(page, /setCompletedWorlds\(\[\]\)/);
   assert.match(page, /aria-live="polite"/);
   assert.match(page, /forest-cast/);
   assert.match(page, /world-journey/);

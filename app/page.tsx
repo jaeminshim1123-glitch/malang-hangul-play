@@ -271,15 +271,6 @@ export default function Home() {
   const progress = phase === "welcome" || phase === "map" ? (completedWorlds.length / worlds.length) * 100 : Math.min(100, (completedSteps / totalSteps) * 100);
   const worldRows = useMemo(() => Array.from({ length: Math.ceil(worlds.length / 3) }, (_, row) => worlds.slice(row * 3, row * 3 + 3).map((item, offset) => ({ item, index: row * 3 + offset }))), []);
 
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem("malang-completed-worlds-50-multi") ?? "[]") as number[];
-      setCompletedWorlds(saved.filter((item) => Number.isInteger(item) && item >= 0 && item < worlds.length));
-    } catch {
-      setCompletedWorlds([]);
-    }
-  }, []);
-
   const stopAudio = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.onended = null;
@@ -336,6 +327,36 @@ export default function Home() {
   }, []);
 
   useEffect(() => () => clearAutoAdvance(), [clearAutoAdvance]);
+
+  const resetToFreshStart = useCallback(() => {
+    clearAutoAdvance();
+    stopAudio();
+    stopEffect();
+    setPhase("welcome");
+    setWorldIndex(0);
+    setRoundIndex(0);
+    setSoundOn(true);
+    setMessage("몽글이와 동산을 탐험해 볼까요?");
+    setWrongChoice(null);
+    setPickedConsonant(null);
+    setPickedVowel(null);
+    setWrongTile(null);
+    setPictureSolved(false);
+    setPetals(0);
+    setCompletedWorlds([]);
+    setMusicVolume(DEFAULT_BGM_VOLUME);
+    window.localStorage.removeItem("malang-completed-worlds-50-multi");
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [clearAutoAdvance, stopAudio, stopEffect]);
+
+  useEffect(() => {
+    resetToFreshStart();
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) resetToFreshStart();
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [resetToFreshStart]);
 
   const playEffect = useCallback((file: "correct" | "wrong" | "flower-success", volume: number) => {
     if (!soundOn) return;
@@ -521,7 +542,6 @@ export default function Home() {
     if (roundIndex === world.rounds.length - 1) {
       const updated = Array.from(new Set([...completedWorlds, worldIndex])).sort();
       setCompletedWorlds(updated);
-      window.localStorage.setItem("malang-completed-worlds-50-multi", JSON.stringify(updated));
       setPhase("complete");
       setMessage(world.completeTitle);
       playVoice(`complete-${world.rounds.length}`);
