@@ -60,7 +60,7 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /50단계 탐험 지도/);
   assert.match(page, /<audio ref=\{audioRef\}/);
   assert.match(page, /\/audio\/leda\/\$\{file\}\.mp3\?v=2/);
-  assert.match(page, /speechSynthesis/);
+  assert.doesNotMatch(page, /speechSynthesis|SpeechSynthesisUtterance|fallbackSpeak/);
   assert.match(page, /localStorage/);
   assert.match(page, /aria-live="polite"/);
   assert.match(page, /forest-cast/);

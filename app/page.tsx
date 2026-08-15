@@ -190,20 +190,6 @@ function validateAllChoices(items: World[]) {
 
 validateAllChoices(worlds);
 
-function fallbackSpeak(text: string, onEnd?: () => void) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-    onEnd?.();
-    return;
-  }
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "ko-KR";
-  utterance.rate = 0.82;
-  utterance.pitch = 1.08;
-  utterance.onend = () => onEnd?.();
-  window.speechSynthesis.speak(utterance);
-}
-
 function CloudBuddy({ mood = "happy" }: { mood?: "happy" | "cheer" }) {
   return (
     <div className={`buddy buddy--${mood}`} aria-hidden="true">
@@ -280,7 +266,6 @@ export default function Home() {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-    if (typeof window !== "undefined") window.speechSynthesis?.cancel();
   }, []);
 
   const clearAutoAdvance = useCallback(() => {
@@ -292,7 +277,7 @@ export default function Home() {
 
   useEffect(() => () => clearAutoAdvance(), [clearAutoAdvance]);
 
-  const playVoice = useCallback((file: string, fallback: string, force = false, onEnded?: () => void) => {
+  const playVoice = useCallback((file: string, force = false, onEnded?: () => void) => {
     if (!soundOn && !force) {
       onEnded?.();
       return;
@@ -300,7 +285,7 @@ export default function Home() {
     stopAudio();
     const audio = audioRef.current;
     if (!audio) {
-      fallbackSpeak(fallback, onEnded);
+      onEnded?.();
       return;
     }
     audio.src = `/audio/leda/${file}.mp3?v=2`;
@@ -310,16 +295,15 @@ export default function Home() {
       onEnded?.();
     };
     audio.load();
-    void audio.play().catch(() => fallbackSpeak(fallback, onEnded));
+    void audio.play().catch(() => {
+      audio.onended = null;
+      onEnded?.();
+    });
   }, [soundOn, stopAudio]);
 
-  const promptText = useMemo(() => phase === "build"
-    ? `${round.syllable}를 만들어 볼까? ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 찾아보자!`
-    : `${round.syllable}로 시작하는 친구는 누구일까요?`, [phase, round]);
-
   const replayPrompt = useCallback(() => {
-    playVoice(`${phase === "build" ? "build" : "prompt"}-${round.audioKey}`, promptText);
-  }, [phase, playVoice, promptText, round.audioKey]);
+    playVoice(`${phase === "build" ? "build" : "prompt"}-${round.audioKey}`);
+  }, [phase, playVoice, round.audioKey]);
 
   const openMap = () => {
     clearAutoAdvance();
@@ -348,7 +332,7 @@ export default function Home() {
     setPictureSolved(false);
     setPhase("sound");
     setMessage("귀를 쫑긋! 첫소리를 찾아봐요.");
-    playVoice(`prompt-${nextWorld.rounds[0].audioKey}`, `${nextWorld.rounds[0].syllable}로 시작하는 친구는 누구일까요?`, true);
+    playVoice(`prompt-${nextWorld.rounds[0].audioKey}`, true);
   };
 
   const goPreviousScreen = () => {
@@ -377,7 +361,7 @@ export default function Home() {
       setPictureSolved(true);
       setPhase("sound");
       setMessage(`${round.syllable}로 시작하는 그림을 다시 찾아봐요.`);
-      playVoice(`prompt-${round.audioKey}`, `${round.syllable}로 시작하는 친구는 누구일까요?`, true);
+      playVoice(`prompt-${round.audioKey}`, true);
       return;
     }
     if (phase === "celebrate") {
@@ -396,7 +380,7 @@ export default function Home() {
     setPickedVowel(null);
     setPhase("build");
     setMessage(`${round.syllable}를 만들어 볼까? ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 찾아보자!`);
-    playVoice(`build-${round.audioKey}`, `${round.syllable}를 만들어 볼까? ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 찾아보자!`, true);
+    playVoice(`build-${round.audioKey}`, true);
   };
 
   const choosePicture = (word: string) => {
@@ -405,13 +389,13 @@ export default function Home() {
       setWrongChoice(null);
       setPictureSolved(true);
       setMessage(`딩동댕! ${round.word}은 ‘${round.syllable}’로 시작해요. 글자 조각 문제로 이동할게요!`);
-      playVoice(`correct-${round.audioKey}`, `딩동댕! ${round.word}은 ${round.syllable}로 시작해요.`, false, showBuildScreen);
+      playVoice(`correct-${round.audioKey}`, false, showBuildScreen);
       clearAutoAdvance();
       return;
     }
     setWrongChoice(word);
     setMessage(`‘${round.syllable}’ 소리를 다시 들어볼까?`);
-    playVoice(`retry-${round.audioKey}`, `${round.syllable} 소리를 다시 들어볼까?`);
+    playVoice(`retry-${round.audioKey}`);
     window.setTimeout(() => setWrongChoice(null), 650);
   };
 
@@ -420,7 +404,7 @@ export default function Home() {
     if (tile !== answer) {
       setWrongTile(`${type}-${tile}`);
       setMessage("이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
-      playVoice("tile-wrong", "이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
+      playVoice("tile-wrong");
       window.setTimeout(() => setWrongTile(null), 550);
       return;
     }
@@ -430,7 +414,7 @@ export default function Home() {
     if (type === "vowel") setPickedVowel(tile);
     setMessage(successMessage);
     const voiceIndex = (type === "consonant" ? consonants : vowels).indexOf(tile) + 1;
-    playVoice(`tile-${type}-${voiceIndex}`, successMessage);
+    playVoice(`tile-${type}-${voiceIndex}`);
   };
 
   const combine = () => {
@@ -438,7 +422,7 @@ export default function Home() {
     setPetals((current) => current + 1);
     setMessage(`짜잔! ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 합치면 ‘${round.syllable}’! 글자꽃이 피었어요.`);
     setPhase("celebrate");
-    playVoice(`combine-${round.audioKey}`, `짜잔! ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 합치면 ${round.syllable}! ${round.word}도 ${round.syllable}로 시작해. 글자꽃이 피었네!`);
+    playVoice(`combine-${round.audioKey}`);
   };
 
   const nextRound = () => {
@@ -448,7 +432,7 @@ export default function Home() {
       window.localStorage.setItem("malang-completed-worlds-50-multi", JSON.stringify(updated));
       setPhase("complete");
       setMessage(world.completeTitle);
-      playVoice(`complete-${world.rounds.length}`, world.completeTitle);
+      playVoice(`complete-${world.rounds.length}`);
       return;
     }
     const next = roundIndex + 1;
@@ -460,7 +444,7 @@ export default function Home() {
     setPictureSolved(false);
     setPhase("sound");
     setMessage("다음 소리 친구를 찾아봐요.");
-    playVoice(`prompt-${world.rounds[next].audioKey}`, `${world.rounds[next].syllable}로 시작하는 친구는 누구일까요?`);
+    playVoice(`prompt-${world.rounds[next].audioKey}`);
   };
 
   const goNextWorld = () => {
@@ -500,7 +484,7 @@ export default function Home() {
           const next = !soundOn;
           setSoundOn(next);
           if (!next) stopAudio();
-          else playVoice(phase === "sound" || phase === "build" ? `${phase === "build" ? "build" : "prompt"}-${round.audioKey}` : "intro", phase === "sound" || phase === "build" ? promptText : "몽글이와 함께 숲속 동산을 탐험해 볼까요?", true);
+          else playVoice(phase === "sound" || phase === "build" ? `${phase === "build" ? "build" : "prompt"}-${round.audioKey}` : "intro", true);
         }} aria-label={soundOn ? "소리 끄기" : "소리 켜기"} aria-pressed={soundOn}><span aria-hidden="true">{soundOn ? "♫" : "—"}</span>{soundOn ? "소리 켜짐" : "소리 꺼짐"}</button>
       </header>
 
@@ -511,7 +495,7 @@ export default function Home() {
             <h1>숲속 동산에서<br /><em>글자 모험</em>을 떠나요!</h1>
             <p>숲속 동산의 글자 길이 흐려졌대요.<br />소리를 찾고 글자를 만들어 50개의 동산을 밝혀 주세요.</p>
             <div className="adventure-summary"><span>50개의 스테이지</span><i>✦</i><span>{totalSteps}개의 글자 문제</span></div>
-            <button className="primary-button" onClick={() => { setPhase("map"); playVoice("intro", "몽글이와 함께 소리숲을 탐험해 볼까요?", true); }}>탐험 지도 펼치기 <span aria-hidden="true">→</span></button>
+            <button className="primary-button" onClick={() => { setPhase("map"); playVoice("intro", true); }}>탐험 지도 펼치기 <span aria-hidden="true">→</span></button>
             <small className="play-note">동산마다 약 3분 · 시간 제한이 없어요</small>
           </div>
           <div className="forest-scene forest-scene--alive" aria-label="글자꽃과 나무가 자라는 알록달록한 숲속 동산">
