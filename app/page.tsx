@@ -93,6 +93,12 @@ const consonantNames: Record<string, string> = {
   "ㅇ": "이응", "ㅈ": "지읒", "ㅊ": "치읓", "ㅋ": "키읔", "ㅌ": "티읕", "ㅍ": "피읖", "ㅎ": "히읗",
 };
 const vowelNames: Record<string, string> = { "ㅏ": "아", "ㅓ": "어", "ㅗ": "오", "ㅜ": "우", "ㅣ": "이" };
+const HOME_BGM_VOLUME = 0.11;
+const GAME_BGM_VOLUME = 0.08;
+const DUCKED_BGM_VOLUME = 0.025;
+const CORRECT_EFFECT_VOLUME = 0.18;
+const WRONG_EFFECT_VOLUME = 0.24;
+const FLOWER_EFFECT_VOLUME = 0.18;
 const roundColors = ["#ff8067", "#7d6be8", "#28ae86", "#f3a727", "#4c9ec9", "#dc7796"];
 const worldAccents = ["#2f9270", "#9a7042", "#e17b61", "#7f6ac9", "#479a9e", "#dc7796"];
 const suffixes = ["꽃길", "놀이터", "언덕", "오솔길", "들판", "나무숲"];
@@ -241,7 +247,11 @@ export default function Home() {
   const [pictureSolved, setPictureSolved] = useState(false);
   const [petals, setPetals] = useState(0);
   const [completedWorlds, setCompletedWorlds] = useState<number[]>([]);
+  const [voicePlaying, setVoicePlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const homeBgmRef = useRef<HTMLAudioElement | null>(null);
+  const gameBgmRef = useRef<HTMLAudioElement | null>(null);
+  const effectRef = useRef<HTMLAudioElement | null>(null);
   const autoAdvanceTimerRef = useRef<number | null>(null);
 
   const world = worlds[worldIndex];
@@ -266,7 +276,44 @@ export default function Home() {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
+    setVoicePlaying(false);
   }, []);
+
+  const pauseBackgroundMusic = useCallback(() => {
+    homeBgmRef.current?.pause();
+    gameBgmRef.current?.pause();
+  }, []);
+
+  const stopEffect = useCallback(() => {
+    if (!effectRef.current) return;
+    effectRef.current.pause();
+    effectRef.current.currentTime = 0;
+  }, []);
+
+  const playBackgroundMusic = useCallback((targetPhase: Phase, force = false) => {
+    if (!soundOn && !force) return;
+    const useHomeMusic = targetPhase === "welcome" || targetPhase === "map";
+    const active = useHomeMusic ? homeBgmRef.current : gameBgmRef.current;
+    const inactive = useHomeMusic ? gameBgmRef.current : homeBgmRef.current;
+    inactive?.pause();
+    if (!active) return;
+    active.loop = true;
+    active.volume = voicePlaying ? DUCKED_BGM_VOLUME : (useHomeMusic ? HOME_BGM_VOLUME : GAME_BGM_VOLUME);
+    void active.play().catch(() => undefined);
+  }, [soundOn, voicePlaying]);
+
+  useEffect(() => {
+    if (!soundOn) {
+      pauseBackgroundMusic();
+      return;
+    }
+    playBackgroundMusic(phase);
+  }, [pauseBackgroundMusic, phase, playBackgroundMusic, soundOn, voicePlaying]);
+
+  useEffect(() => () => {
+    pauseBackgroundMusic();
+    stopEffect();
+  }, [pauseBackgroundMusic, stopEffect]);
 
   const clearAutoAdvance = useCallback(() => {
     if (autoAdvanceTimerRef.current !== null) {
@@ -277,14 +324,27 @@ export default function Home() {
 
   useEffect(() => () => clearAutoAdvance(), [clearAutoAdvance]);
 
+  const playEffect = useCallback((file: "correct" | "wrong" | "flower-success", volume: number) => {
+    if (!soundOn || !effectRef.current) return;
+    const effect = effectRef.current;
+    effect.pause();
+    effect.currentTime = 0;
+    effect.src = `/audio/music/${file}.mp3?v=1`;
+    effect.volume = volume;
+    effect.load();
+    void effect.play().catch(() => undefined);
+  }, [soundOn]);
+
   const playVoice = useCallback((file: string, force = false, onEnded?: () => void) => {
     if (!soundOn && !force) {
       onEnded?.();
       return;
     }
     stopAudio();
+    setVoicePlaying(true);
     const audio = audioRef.current;
     if (!audio) {
+      setVoicePlaying(false);
       onEnded?.();
       return;
     }
@@ -292,11 +352,13 @@ export default function Home() {
     audio.volume = 1;
     audio.onended = () => {
       audio.onended = null;
+      setVoicePlaying(false);
       onEnded?.();
     };
     audio.load();
     void audio.play().catch(() => {
       audio.onended = null;
+      setVoicePlaying(false);
       onEnded?.();
     });
   }, [soundOn, stopAudio]);
@@ -332,7 +394,7 @@ export default function Home() {
     setPictureSolved(false);
     setPhase("sound");
     setMessage("귀를 쫑긋! 첫소리를 찾아봐요.");
-    playVoice(`prompt-${nextWorld.rounds[0].audioKey}`, true);
+    playVoice(`prompt-${nextWorld.rounds[0].audioKey}`);
   };
 
   const goPreviousScreen = () => {
@@ -361,7 +423,7 @@ export default function Home() {
       setPictureSolved(true);
       setPhase("sound");
       setMessage(`${round.syllable}로 시작하는 그림을 다시 찾아봐요.`);
-      playVoice(`prompt-${round.audioKey}`, true);
+      playVoice(`prompt-${round.audioKey}`);
       return;
     }
     if (phase === "celebrate") {
@@ -380,7 +442,7 @@ export default function Home() {
     setPickedVowel(null);
     setPhase("build");
     setMessage(`${round.syllable}를 만들어 볼까? ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 찾아보자!`);
-    playVoice(`build-${round.audioKey}`, true);
+    playVoice(`build-${round.audioKey}`);
   };
 
   const choosePicture = (word: string) => {
@@ -389,12 +451,14 @@ export default function Home() {
       setWrongChoice(null);
       setPictureSolved(true);
       setMessage(`딩동댕! ${round.word}은 ‘${round.syllable}’로 시작해요. 글자 조각 문제로 이동할게요!`);
+      playEffect("correct", CORRECT_EFFECT_VOLUME);
       playVoice(`correct-${round.audioKey}`, false, showBuildScreen);
       clearAutoAdvance();
       return;
     }
     setWrongChoice(word);
     setMessage(`‘${round.syllable}’ 소리를 다시 들어볼까?`);
+    playEffect("wrong", WRONG_EFFECT_VOLUME);
     playVoice(`retry-${round.audioKey}`);
     window.setTimeout(() => setWrongChoice(null), 650);
   };
@@ -404,6 +468,7 @@ export default function Home() {
     if (tile !== answer) {
       setWrongTile(`${type}-${tile}`);
       setMessage("이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
+      playEffect("wrong", WRONG_EFFECT_VOLUME);
       playVoice("tile-wrong");
       window.setTimeout(() => setWrongTile(null), 550);
       return;
@@ -414,6 +479,7 @@ export default function Home() {
     if (type === "vowel") setPickedVowel(tile);
     setMessage(successMessage);
     const voiceIndex = (type === "consonant" ? consonants : vowels).indexOf(tile) + 1;
+    playEffect("correct", CORRECT_EFFECT_VOLUME);
     playVoice(`tile-${type}-${voiceIndex}`);
   };
 
@@ -422,6 +488,7 @@ export default function Home() {
     setPetals((current) => current + 1);
     setMessage(`짜잔! ${consonantNames[round.consonant]}과 ${vowelNames[round.vowel]}를 합치면 ‘${round.syllable}’! 글자꽃이 피었어요.`);
     setPhase("celebrate");
+    playEffect("flower-success", FLOWER_EFFECT_VOLUME);
     playVoice(`combine-${round.audioKey}`);
   };
 
@@ -469,7 +536,7 @@ export default function Home() {
   const nextScreenDisabled = phase === "build" ? !pickedConsonant || !pickedVowel : false;
 
   return (
-    <main className={`game-shell world-theme-${worldIndex}`}>
+    <main className={`game-shell world-theme-${worldIndex}`} onPointerDown={() => playBackgroundMusic(phase)}>
       <div className="sky-decoration" aria-hidden="true"><span className="cloud cloud--one" /><span className="cloud cloud--two" /><span className="sun">✦</span></div>
 
       <header className="topbar">
@@ -483,8 +550,14 @@ export default function Home() {
         <button className="sound-toggle" onClick={() => {
           const next = !soundOn;
           setSoundOn(next);
-          if (!next) stopAudio();
-          else playVoice(phase === "sound" || phase === "build" ? `${phase === "build" ? "build" : "prompt"}-${round.audioKey}` : "intro", true);
+          if (!next) {
+            stopAudio();
+            pauseBackgroundMusic();
+            stopEffect();
+          } else {
+            playBackgroundMusic(phase, true);
+            playVoice(phase === "sound" || phase === "build" ? `${phase === "build" ? "build" : "prompt"}-${round.audioKey}` : "intro", true);
+          }
         }} aria-label={soundOn ? "소리 끄기" : "소리 켜기"} aria-pressed={soundOn}><span aria-hidden="true">{soundOn ? "♫" : "—"}</span>{soundOn ? "소리 켜짐" : "소리 꺼짐"}</button>
       </header>
 
@@ -495,7 +568,7 @@ export default function Home() {
             <h1>숲속 동산에서<br /><em>글자 모험</em>을 떠나요!</h1>
             <p>숲속 동산의 글자 길이 흐려졌대요.<br />소리를 찾고 글자를 만들어 50개의 동산을 밝혀 주세요.</p>
             <div className="adventure-summary"><span>50개의 스테이지</span><i>✦</i><span>{totalSteps}개의 글자 문제</span></div>
-            <button className="primary-button" onClick={() => { setPhase("map"); playVoice("intro", true); }}>탐험 지도 펼치기 <span aria-hidden="true">→</span></button>
+            <button className="primary-button" onClick={() => { setPhase("map"); playVoice("intro"); }}>탐험 지도 펼치기 <span aria-hidden="true">→</span></button>
             <small className="play-note">동산마다 약 3분 · 시간 제한이 없어요</small>
           </div>
           <div className="forest-scene forest-scene--alive" aria-label="글자꽃과 나무가 자라는 알록달록한 숲속 동산">
@@ -570,6 +643,9 @@ export default function Home() {
 
       <p className="sr-only" aria-live="polite">{message}</p>
       <audio ref={audioRef} className="sr-only" preload="auto" aria-hidden="true" />
+      <audio ref={homeBgmRef} className="sr-only" src="/audio/music/home-bgm.mp3?v=1" preload="metadata" loop aria-hidden="true" />
+      <audio ref={gameBgmRef} className="sr-only" src="/audio/music/game-bgm.mp3?v=1" preload="metadata" loop aria-hidden="true" />
+      <audio ref={effectRef} className="sr-only" preload="auto" aria-hidden="true" />
       <footer><span>말랑한글 연구소</span><p>아이의 속도로, 놀이처럼 천천히 배워요.</p></footer>
     </main>
   );

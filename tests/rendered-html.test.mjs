@@ -138,3 +138,23 @@ test("includes every Google Cloud Leda voice clip used by the fifty stages", asy
     assert.ok(files.includes(`tile-vowel-${index}.mp3`), `missing tile-vowel-${index}.mp3`);
   }
 });
+
+test("uses the provided looping music and low-volume answer effects", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const musicDirectory = new URL("../public/audio/music/", import.meta.url);
+  const expectedFiles = ["home-bgm.mp3", "game-bgm.mp3", "correct.mp3", "wrong.mp3", "flower-success.mp3"];
+
+  for (const file of expectedFiles) {
+    assert.ok((await stat(new URL(file, musicDirectory))).size > 1024, `${file} is missing or empty`);
+  }
+
+  assert.match(page, /HOME_BGM_VOLUME = 0\.11/);
+  assert.match(page, /GAME_BGM_VOLUME = 0\.08/);
+  assert.match(page, /DUCKED_BGM_VOLUME = 0\.025/);
+  assert.match(page, /home-bgm\.mp3\?v=1[^\n]+loop/);
+  assert.match(page, /game-bgm\.mp3\?v=1[^\n]+loop/);
+  assert.match(page, /playEffect\("correct", CORRECT_EFFECT_VOLUME\)/);
+  assert.match(page, /playEffect\("wrong", WRONG_EFFECT_VOLUME\)/);
+  assert.match(page, /playEffect\("flower-success", FLOWER_EFFECT_VOLUME\)/);
+  assert.doesNotMatch(page, /speechSynthesis|SpeechSynthesisUtterance|fallbackSpeak/);
+});
