@@ -122,6 +122,9 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.doesNotMatch(css, /\.tiny-pond/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /@media \(max-width:\s*540px\)/);
+  assert.match(css, /\.tile-groups\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\);gap:10px;width:100%\}/);
+  assert.match(css, /\.tile-groups>div>div\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\);gap:5px;width:100%\}/);
+  assert.match(css, /\.tile-groups button\{justify-self:center;width:100%;max-width:46px/);
   assert.match(layout, /lang="ko"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 });
