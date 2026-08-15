@@ -303,7 +303,7 @@ export default function Home() {
       fallbackSpeak(fallback, onEnded);
       return;
     }
-    audio.src = `/audio/leda/${file}.mp3`;
+    audio.src = `/audio/leda/${file}.mp3?v=2`;
     audio.volume = 1;
     audio.onended = () => {
       audio.onended = null;
