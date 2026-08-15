@@ -80,7 +80,13 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /setPhase\("celebrate"\)/);
   assert.match(page, /pictureSolved/);
   assert.match(page, /‘\$\{round\.syllable\}’ 소리를 다시 들어볼까\?/);
+  assert.match(page, /fallbackSpeak\(`\$\{round\.syllable\} 소리를 다시 들어볼까\?`\)/);
+  assert.doesNotMatch(page, /playVoice\("wrong"/);
   assert.doesNotMatch(page, /좋은 생각이야/);
+  assert.match(page, /autoAdvanceTimerRef/);
+  assert.match(page, /showBuildScreen\(\);\s*\n\s*\}, 900\)/);
+  assert.match(page, /if \(phase === "sound"\) \{\s*\n\s*showBuildScreen\(\)/);
+  assert.match(page, /const nextScreenDisabled = phase === "build"/);
   assert.match(css, /\.topbar\s*\{[^}]*position:sticky;[^}]*top:0/);
   assert.match(css, /\.game-navigation\s*\{[^}]*position:absolute;[^}]*right:28px;[^}]*top:27px/);
   assert.match(css, /\.game-nav-button\s*\{/);

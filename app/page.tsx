@@ -247,6 +247,7 @@ export default function Home() {
   const [petals, setPetals] = useState(0);
   const [completedWorlds, setCompletedWorlds] = useState<number[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const autoAdvanceTimerRef = useRef<number | null>(null);
 
   const world = worlds[worldIndex];
   const round = world.rounds[roundIndex];
@@ -272,6 +273,15 @@ export default function Home() {
     if (typeof window !== "undefined") window.speechSynthesis?.cancel();
   }, []);
 
+  const clearAutoAdvance = useCallback(() => {
+    if (autoAdvanceTimerRef.current !== null) {
+      window.clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => clearAutoAdvance(), [clearAutoAdvance]);
+
   const playVoice = useCallback((file: string, fallback: string, force = false) => {
     if (!soundOn && !force) return;
     stopAudio();
@@ -295,18 +305,21 @@ export default function Home() {
   }, [phase, playVoice, promptText, round.audioKey]);
 
   const openMap = () => {
+    clearAutoAdvance();
     stopAudio();
     setPhase("map");
     setMessage("가고 싶은 동산을 골라 주세요.");
   };
 
   const goHome = () => {
+    clearAutoAdvance();
     stopAudio();
     setPhase("welcome");
     setMessage("숲속 친구들과 동산을 탐험해 볼까요?");
   };
 
   const startWorld = (index: number) => {
+    clearAutoAdvance();
     const nextWorld = worlds[index];
     setWorldIndex(index);
     setRoundIndex(0);
@@ -322,6 +335,7 @@ export default function Home() {
   };
 
   const goPreviousScreen = () => {
+    clearAutoAdvance();
     stopAudio();
     setWrongChoice(null);
     setWrongTile(null);
@@ -359,18 +373,33 @@ export default function Home() {
     }
   };
 
+  const showBuildScreen = () => {
+    clearAutoAdvance();
+    setPickedConsonant(null);
+    setPickedVowel(null);
+    setPhase("build");
+    setMessage("이제 소리 조각을 합쳐 볼까요?");
+    playVoice(`build-${round.audioKey}`, `${round.consonant}과 ${round.vowel}를 찾아서 ${round.syllable}를 만들어요.`, true);
+  };
+
   const choosePicture = (word: string) => {
     if (pictureSolved) return;
     if (word === round.word) {
       setWrongChoice(null);
       setPictureSolved(true);
-      setMessage(`딩동댕! ${round.word}은 ‘${round.syllable}’로 시작해요. 다음 화면으로 가 볼까요?`);
+      setMessage(`딩동댕! ${round.word}은 ‘${round.syllable}’로 시작해요. 글자 조각 문제로 이동할게요!`);
       playVoice(`correct-${round.audioKey}`, `딩동댕! ${round.word}은 ${round.syllable}로 시작해요.`);
+      clearAutoAdvance();
+      autoAdvanceTimerRef.current = window.setTimeout(() => {
+        autoAdvanceTimerRef.current = null;
+        showBuildScreen();
+      }, 900);
       return;
     }
     setWrongChoice(word);
     setMessage(`‘${round.syllable}’ 소리를 다시 들어볼까?`);
-    playVoice("wrong", `${round.syllable} 소리를 다시 들어볼까?`);
+    stopAudio();
+    if (soundOn) fallbackSpeak(`${round.syllable} 소리를 다시 들어볼까?`);
     window.setTimeout(() => setWrongChoice(null), 650);
   };
 
@@ -379,7 +408,8 @@ export default function Home() {
     if (tile !== answer) {
       setWrongTile(`${type}-${tile}`);
       setMessage("이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
-      playVoice("tile-wrong", "이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
+      stopAudio();
+      if (soundOn) fallbackSpeak("이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
       window.setTimeout(() => setWrongTile(null), 550);
       return;
     }
@@ -424,13 +454,10 @@ export default function Home() {
   };
 
   const goNextScreen = () => {
+    clearAutoAdvance();
     stopAudio();
-    if (phase === "sound" && pictureSolved) {
-      setPickedConsonant(null);
-      setPickedVowel(null);
-      setPhase("build");
-      setMessage("이제 소리 조각을 합쳐 볼까요?");
-      playVoice(`build-${round.audioKey}`, `${round.consonant}과 ${round.vowel}를 찾아서 ${round.syllable}를 만들어요.`, true);
+    if (phase === "sound") {
+      showBuildScreen();
       return;
     }
     if (phase === "build" && pickedConsonant && pickedVowel) {
@@ -440,7 +467,7 @@ export default function Home() {
     if (phase === "celebrate") nextRound();
   };
 
-  const nextScreenDisabled = phase === "sound" ? !pictureSolved : phase === "build" ? !pickedConsonant || !pickedVowel : false;
+  const nextScreenDisabled = phase === "build" ? !pickedConsonant || !pickedVowel : false;
 
   return (
     <main className={`game-shell world-theme-${worldIndex}`}>
