@@ -164,13 +164,13 @@ h1 em,.complete-copy h1 em { color:var(--coral); font-style:normal; position:rel
 .flower-shelf i { font-size:23px; font-style:normal; filter:grayscale(1); }.flower-shelf small{font-size:11px}
 .flower-shelf .is-grown { color:#e09636; animation:pop .45s cubic-bezier(.2,1.8,.5,1); }.flower-shelf .is-grown i { filter:none; color:#f7a64a; text-shadow:0 2px #d97472; }
 .map-link { margin-top:17px;border:0;background:transparent;color:#71847b;text-decoration:underline;text-underline-offset:3px;font-size:11px;cursor:pointer; }
-.play-card { --round-color:#ff8067; padding:clamp(28px,5vw,55px); position:relative; overflow:hidden; }
+.play-card { --round-color:#ff8067; padding:100px clamp(28px,5vw,55px) clamp(28px,5vw,55px); position:relative; overflow:hidden; }
 .play-card::after { content:"";position:absolute;width:210px;height:210px;border-radius:50%;right:-105px;top:-105px;background:color-mix(in srgb,var(--round-color) 16%,transparent); }
-.game-navigation { position:relative; z-index:3; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 8px; }
-.game-navigation--celebrate { margin:-27px 0 4px; }
+.game-navigation { position:absolute; z-index:5; left:28px; right:28px; top:27px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0; }
+.game-navigation--celebrate { left:28px; right:28px; top:27px; }
 .game-nav-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-width:108px; padding:9px 13px; border:2px solid color-mix(in srgb,var(--round-color) 22%,#dfe9e2); border-radius:14px; background:rgba(255,255,255,.82); color:#587169; font-size:12px; cursor:pointer; box-shadow:0 4px 0 color-mix(in srgb,var(--round-color) 10%,#dce5de); transition:transform .15s,box-shadow .15s,opacity .15s; }
 .game-nav-button span { color:var(--round-color); font-size:18px; line-height:1; }.game-nav-button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 0 color-mix(in srgb,var(--round-color) 14%,#dce5de)}
-.game-nav-button--next { color:color-mix(in srgb,var(--round-color) 72%,#35554b); }.game-nav-button:disabled{opacity:.38;cursor:not-allowed;box-shadow:none}
+.game-nav-button--next { border-color:color-mix(in srgb,var(--round-color) 58%,#fff); background:var(--round-color); color:#fff; }.game-nav-button--next span{color:#fff}.game-nav-button:disabled{opacity:.62;cursor:not-allowed;box-shadow:none}
 .step-title { text-align:center; position:relative; z-index:1; }
 .step-title > span { display:inline-block;color:var(--round-color);font-size:12px;letter-spacing:.08em;margin-bottom:8px; }
 .step-title h2 { font-size:clamp(26px,4vw,38px);margin:0;letter-spacing:-.045em; }.step-title h2 em{font-style:normal;color:var(--round-color)}
@@ -197,8 +197,8 @@ h1 em,.complete-copy h1 em { color:var(--coral); font-style:normal; position:rel
 .combine-button { display:block;margin:0 auto;border:0;border-radius:17px;padding:15px 26px;min-width:240px;background:var(--round-color);color:white;cursor:pointer;box-shadow:0 6px 0 color-mix(in srgb,var(--round-color) 68%,#555); }
 .combine-button:disabled { color:#9ca59f;background:#e6ebe7;box-shadow:0 5px 0 #d8ded9;cursor:not-allowed; }
 
-.celebrate-card { --round-color:#ff8067; position:relative;z-index:2;max-width:780px;min-height:620px;margin:0 auto;padding:58px 40px 45px;border:1px solid rgba(255,255,255,.8);border-radius:40px;background:rgba(255,250,240,.94);box-shadow:0 24px 70px rgba(58,91,75,.16);text-align:center;overflow:hidden; }
-.confetti { position:absolute;left:0;right:0;top:38px;display:flex;justify-content:space-around;color:var(--round-color);font-size:21px;animation:confetti 1s ease-out; }.confetti i{color:#6cc58e;font-style:normal}.confetti b{color:#ffd85e}
+.celebrate-card { --round-color:#ff8067; position:relative;z-index:2;max-width:780px;min-height:620px;margin:0 auto;padding:100px 40px 45px;border:1px solid rgba(255,255,255,.8);border-radius:40px;background:rgba(255,250,240,.94);box-shadow:0 24px 70px rgba(58,91,75,.16);text-align:center;overflow:hidden; }
+.confetti { position:absolute;left:0;right:0;top:78px;display:flex;justify-content:space-around;color:var(--round-color);font-size:21px;animation:confetti 1s ease-out; }.confetti i{color:#6cc58e;font-style:normal}.confetti b{color:#ffd85e}
 .word-flower { width:190px;height:190px;margin:25px auto 22px;position:relative;display:grid;place-items:center; }
 .word-flower__petal { position:absolute;width:105px;height:105px;border-radius:60% 40% 55% 45%;background:color-mix(in srgb,var(--round-color) 82%,white);box-shadow:inset -8px -8px 0 rgba(155,75,70,.12); }.word-flower__petal--one{transform:translateY(-43px) rotate(45deg)}.word-flower__petal--two{transform:translateX(43px) rotate(135deg)}.word-flower__petal--three{transform:translateY(43px) rotate(225deg)}.word-flower__petal--four{transform:translateX(-43px) rotate(315deg)}
 .word-flower b { position:relative;z-index:2;width:88px;height:88px;border-radius:50%;display:grid;place-items:center;background:#fff0a5;color:#654d2c;font-size:45px;box-shadow:0 7px 0 rgba(125,91,33,.2); }
@@ -232,7 +232,7 @@ footer { position:relative;z-index:2;max-width:1180px;margin:22px auto 0;display
   .forest-character--toto{left:16%;width:95px}.forest-character--lulu{left:35%;width:83px;bottom:16%}.forest-character--bami{left:54%;width:76px;bottom:16%}.forest-character--tori{left:70%;width:112px}
   .world-map-card{padding:35px 20px;min-height:auto}.world-journey{gap:29px;padding:28px 10px 10px 52px}.world-journey::before{content:"";position:absolute;z-index:0;left:29px;top:55px;bottom:50px;border-left:5px dashed #d9ceb5}.journey-row{grid-template-columns:1fr;gap:29px}.journey-row::before,.journey-row::after{display:none}.journey-row--reverse .journey-stop:nth-child(1),.journey-row--reverse .journey-stop:nth-child(2),.journey-row--reverse .journey-stop:nth-child(3){grid-column:1;grid-row:auto}.journey-dialogue{min-height:118px}.journey-bubble{font-size:14px}.journey-stone{min-height:154px}
   .mission-layout{grid-template-columns:1fr;min-height:auto}.guide-card{display:grid;grid-template-columns:100px 1fr;gap:12px;padding:18px}.guide-card .buddy{grid-row:2;margin:5px auto;transform:scale(.75)}.guide-badge{grid-column:1/-1}.speech-card{grid-row:2}.flower-shelf{grid-column:1/-1;margin-top:0;padding-top:14px}
-  .play-card{padding:32px 18px}.picture-choices{gap:9px}.picture-choices button{min-height:190px;border-radius:22px}.picture-choices button>span{font-size:55px}.picture-choices button b{font-size:17px}
+  .play-card{padding:90px 18px 32px}.game-navigation{left:18px;right:18px;top:20px}.picture-choices{gap:9px}.picture-choices button{min-height:190px;border-radius:22px}.picture-choices button>span{font-size:55px}.picture-choices button b{font-size:17px}
 }
 
 @media (max-width: 540px) {
@@ -242,7 +242,7 @@ footer { position:relative;z-index:2;max-width:1180px;margin:22px auto 0;display
   .world-map-card{border-radius:28px;padding:30px 12px}.map-heading h1{font-size:34px}.map-heading p{padding:0 8px}.world-journey{padding-left:42px;padding-right:2px}.journey-route{left:18px}.journey-dialogue{gap:6px;min-height:116px}.journey-guide{flex-basis:68px}.journey-guide>img{max-width:76px;max-height:80px}.journey-bubble{padding:12px;font-size:13px;line-height:1.5}.journey-bubble b{font-size:14px}.journey-stone{padding:17px 78px 16px 14px;min-height:150px}.journey-stone__copy>strong{font-size:23px}.journey-stone__copy>em{font-size:13px}.journey-nature{right:7px;transform:scale(.84);transform-origin:right bottom}.journey-stone__number{left:11px;top:11px;width:31px;height:31px}
   .picture-choices button{min-height:155px;padding:12px 5px}.picture-choices button>span{font-size:45px}.picture-choices button i{display:none}
   .build-stage{gap:7px;padding:18px 8px;min-height:125px}.letter-slot,.letter-result{width:73px;height:73px;border-radius:19px;font-size:36px}.plus,.equals{font-size:19px}.tile-groups{gap:8px}.tile-groups button{width:50px;height:50px;border-radius:15px;font-size:23px}
-  .celebrate-card{padding:44px 20px 35px;min-height:auto}.word-flower{transform:scale(.8);margin-top:2px;margin-bottom:0}.celebrate-card h2{font-size:27px}.celebrate-card h2 strong{font-size:39px}
+  .celebrate-card{padding:90px 20px 35px;min-height:auto}.celebrate-card .game-navigation{left:16px;right:16px;top:18px}.word-flower{transform:scale(.8);margin-top:2px;margin-bottom:0}.celebrate-card h2{font-size:27px}.celebrate-card h2 strong{font-size:39px}
   footer{display:none}
 }
 

@@ -369,8 +369,8 @@ export default function Home() {
       return;
     }
     setWrongChoice(word);
-    setMessage(`좋은 생각이야! ${round.syllable} 소리를 다시 들어볼까?`);
-    playVoice("wrong", `좋은 생각이야! ${round.syllable} 소리를 다시 들어볼까?`);
+    setMessage(`‘${round.syllable}’ 소리를 다시 들어볼까?`);
+    playVoice("wrong", `${round.syllable} 소리를 다시 들어볼까?`);
     window.setTimeout(() => setWrongChoice(null), 650);
   };
 
@@ -378,8 +378,8 @@ export default function Home() {
     const answer = type === "consonant" ? round.consonant : round.vowel;
     if (tile !== answer) {
       setWrongTile(`${type}-${tile}`);
-      setMessage("통통! 다른 소리 조각도 살펴봐요.");
-      playVoice("tile-wrong", "다른 소리 조각도 살펴봐요.");
+      setMessage("이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
+      playVoice("tile-wrong", "이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
       window.setTimeout(() => setWrongTile(null), 550);
       return;
     }

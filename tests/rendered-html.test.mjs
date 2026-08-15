@@ -77,10 +77,14 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /onClick=\{goNextScreen\}/);
   assert.match(page, /roundIndex === 0/);
   assert.match(page, /setRoundIndex\(previousIndex\)/);
+  assert.match(page, /setPhase\("celebrate"\)/);
   assert.match(page, /pictureSolved/);
+  assert.match(page, /‘\$\{round\.syllable\}’ 소리를 다시 들어볼까\?/);
+  assert.doesNotMatch(page, /좋은 생각이야/);
   assert.match(css, /\.topbar\s*\{[^}]*position:sticky;[^}]*top:0/);
-  assert.match(css, /\.game-navigation\s*\{/);
+  assert.match(css, /\.game-navigation\s*\{[^}]*position:absolute;[^}]*right:28px;[^}]*top:27px/);
   assert.match(css, /\.game-nav-button\s*\{/);
+  assert.match(css, /\.game-nav-button--next\s*\{[^}]*background:var\(--round-color\)/);
   assert.match(css, /journey-row:not\(:last-child\)::after/);
   assert.match(css, /journey-bubble[^}]*font-size:14px/);
   assert.match(css, /flower-shelf[^}]*grid-template-columns:repeat\(5,1fr\)/);
