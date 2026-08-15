@@ -101,14 +101,14 @@ function mixedOptions(answer: string, pool: string[], index: number) {
   return [...unique.slice(shift), ...unique.slice(0, shift)];
 }
 
-function makeRound(seed: RoundSeed, index: number): LearningRound {
+function makeRound(seed: RoundSeed, index: number, audioIndex: number): LearningRound {
   const distractorPool = roundSeeds.filter((candidate) => candidate.word !== seed.word);
   const distractors = [distractorPool[index % distractorPool.length], distractorPool[(index + 19) % distractorPool.length]];
   const choices = [seed, ...distractors].map(({ word, emoji }) => ({ word, emoji }));
   const shift = index % 3;
   return {
     ...seed,
-    audioKey: `stage-${index + 1}`,
+    audioKey: `letter-${audioIndex + 1}`,
     color: roundColors[index % roundColors.length],
     choices: [...choices.slice(shift), ...choices.slice(0, shift)],
     consonantChoices: mixedOptions(seed.consonant, consonants, index),
@@ -123,7 +123,7 @@ function makeStageRounds(stageIndex: number) {
     .map((index) => index % roundSeeds.length);
   const shift = (stageIndex * 3) % count;
   const mixedIndexes = [...seedIndexes.slice(shift), ...seedIndexes.slice(0, shift)];
-  return mixedIndexes.map((seedIndex, questionIndex) => makeRound(roundSeeds[seedIndex], stageIndex * 5 + questionIndex));
+  return mixedIndexes.map((seedIndex, questionIndex) => makeRound(roundSeeds[seedIndex], stageIndex * 5 + questionIndex, seedIndex));
 }
 
 const guideProfiles = {
@@ -185,13 +185,17 @@ function validateAllChoices(items: World[]) {
 
 validateAllChoices(worlds);
 
-function fallbackSpeak(text: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+function fallbackSpeak(text: string, onEnd?: () => void) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    onEnd?.();
+    return;
+  }
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "ko-KR";
   utterance.rate = 0.82;
   utterance.pitch = 1.08;
+  utterance.onend = () => onEnd?.();
   window.speechSynthesis.speak(utterance);
 }
 
@@ -267,6 +271,7 @@ export default function Home() {
 
   const stopAudio = useCallback(() => {
     if (audioRef.current) {
+      audioRef.current.onended = null;
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
@@ -282,18 +287,25 @@ export default function Home() {
 
   useEffect(() => () => clearAutoAdvance(), [clearAutoAdvance]);
 
-  const playVoice = useCallback((file: string, fallback: string, force = false) => {
-    if (!soundOn && !force) return;
+  const playVoice = useCallback((file: string, fallback: string, force = false, onEnded?: () => void) => {
+    if (!soundOn && !force) {
+      onEnded?.();
+      return;
+    }
     stopAudio();
     const audio = audioRef.current;
     if (!audio) {
-      fallbackSpeak(fallback);
+      fallbackSpeak(fallback, onEnded);
       return;
     }
-    audio.src = `/audio/${file}.wav`;
+    audio.src = `/audio/leda/${file}.mp3`;
     audio.volume = 1;
+    audio.onended = () => {
+      audio.onended = null;
+      onEnded?.();
+    };
     audio.load();
-    void audio.play().catch(() => fallbackSpeak(fallback));
+    void audio.play().catch(() => fallbackSpeak(fallback, onEnded));
   }, [soundOn, stopAudio]);
 
   const promptText = useMemo(() => phase === "build"
@@ -388,18 +400,13 @@ export default function Home() {
       setWrongChoice(null);
       setPictureSolved(true);
       setMessage(`딩동댕! ${round.word}은 ‘${round.syllable}’로 시작해요. 글자 조각 문제로 이동할게요!`);
-      playVoice(`correct-${round.audioKey}`, `딩동댕! ${round.word}은 ${round.syllable}로 시작해요.`);
+      playVoice(`correct-${round.audioKey}`, `딩동댕! ${round.word}은 ${round.syllable}로 시작해요.`, false, showBuildScreen);
       clearAutoAdvance();
-      autoAdvanceTimerRef.current = window.setTimeout(() => {
-        autoAdvanceTimerRef.current = null;
-        showBuildScreen();
-      }, 900);
       return;
     }
     setWrongChoice(word);
     setMessage(`‘${round.syllable}’ 소리를 다시 들어볼까?`);
-    stopAudio();
-    if (soundOn) fallbackSpeak(`${round.syllable} 소리를 다시 들어볼까?`);
+    playVoice(`retry-${round.audioKey}`, `${round.syllable} 소리를 다시 들어볼까?`);
     window.setTimeout(() => setWrongChoice(null), 650);
   };
 
@@ -408,8 +415,7 @@ export default function Home() {
     if (tile !== answer) {
       setWrongTile(`${type}-${tile}`);
       setMessage("이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
-      stopAudio();
-      if (soundOn) fallbackSpeak("이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
+      playVoice("tile-wrong", "이 소리 조각은 아닌 것 같아. 다시 찾아볼까?");
       window.setTimeout(() => setWrongTile(null), 550);
       return;
     }
@@ -433,7 +439,7 @@ export default function Home() {
       window.localStorage.setItem("malang-completed-worlds-50-multi", JSON.stringify(updated));
       setPhase("complete");
       setMessage(world.completeTitle);
-      if (soundOn) fallbackSpeak(world.completeTitle);
+      playVoice(`complete-${world.rounds.length}`, world.completeTitle);
       return;
     }
     const next = roundIndex + 1;

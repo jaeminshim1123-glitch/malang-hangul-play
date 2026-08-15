@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import test from "node:test";
 
 async function render() {
@@ -59,7 +59,7 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /다음 문제 \(\$\{roundIndex \+ 2\}\/\$\{world\.rounds\.length\}\)/);
   assert.match(page, /50단계 탐험 지도/);
   assert.match(page, /<audio ref=\{audioRef\}/);
-  assert.match(page, /\/audio\/\$\{file\}\.wav/);
+  assert.match(page, /\/audio\/leda\/\$\{file\}\.mp3/);
   assert.match(page, /speechSynthesis/);
   assert.match(page, /localStorage/);
   assert.match(page, /aria-live="polite"/);
@@ -80,11 +80,10 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(page, /setPhase\("celebrate"\)/);
   assert.match(page, /pictureSolved/);
   assert.match(page, /‘\$\{round\.syllable\}’ 소리를 다시 들어볼까\?/);
-  assert.match(page, /fallbackSpeak\(`\$\{round\.syllable\} 소리를 다시 들어볼까\?`\)/);
+  assert.match(page, /playVoice\(`retry-\$\{round\.audioKey\}`/);
   assert.doesNotMatch(page, /playVoice\("wrong"/);
   assert.doesNotMatch(page, /좋은 생각이야/);
-  assert.match(page, /autoAdvanceTimerRef/);
-  assert.match(page, /showBuildScreen\(\);\s*\n\s*\}, 900\)/);
+  assert.match(page, /playVoice\(`correct-\$\{round\.audioKey\}`,[^\n]+false, showBuildScreen\)/);
   assert.match(page, /if \(phase === "sound"\) \{\s*\n\s*showBuildScreen\(\)/);
   assert.match(page, /const nextScreenDisabled = phase === "build"/);
   assert.match(css, /\.topbar\s*\{[^}]*position:sticky;[^}]*top:0/);
@@ -110,4 +109,22 @@ test("includes fifty guided games, sticky navigation, and recorded audio", async
   assert.match(css, /@media \(max-width:\s*540px\)/);
   assert.match(layout, /lang="ko"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
+});
+
+test("includes every Google Cloud Leda voice clip used by the fifty stages", async () => {
+  const audioDirectory = new URL("../public/audio/leda/", import.meta.url);
+  const files = (await readdir(audioDirectory)).filter((file) => file.endsWith(".mp3"));
+  assert.equal(files.length, 254);
+
+  for (const common of ["intro.mp3", "tile-wrong.mp3", "complete-4.mp3", "complete-5.mp3"]) {
+    assert.ok(files.includes(common), `missing ${common}`);
+  }
+
+  for (let index = 1; index <= 50; index += 1) {
+    for (const prefix of ["prompt", "build", "correct", "combine", "retry"]) {
+      const file = `${prefix}-letter-${index}.mp3`;
+      assert.ok(files.includes(file), `missing ${file}`);
+      assert.ok((await stat(new URL(file, audioDirectory))).size > 512, `${file} is unexpectedly small`);
+    }
+  }
 });
